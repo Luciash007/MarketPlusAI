@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MarketPulse AI — Financial Sentiment Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ── DESIGN TOKENS ─────────────────────────────────────────────────────── */
+:root {
+  --bg:#0a0e1a;--bg2:#0f1629;--bg3:#141d35;--card:#111827;--card2:#1a2235;
+  --border:rgba(99,102,241,0.18);--border2:rgba(255,255,255,0.07);
+  --accent:#6366f1;--accent2:#818cf8;--green:#10b981;--green2:#34d399;
+  --red:#ef4444;--red2:#f87171;--yellow:#f59e0b;--yellow2:#fbbf24;
+  --cyan:#06b6d4;--purple:#a855f7;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;--display:'Syne',sans-serif;
+  --radius:12px;--shadow:0 4px 32px rgba(0,0,0,0.5);--glow:0 0 24px rgba(99,102,241,0.25);
+}
+[data-theme="light"]{--bg:#f0f4ff;--bg2:#e8eeff;--bg3:#dde5ff;--card:#ffffff;--card2:#f5f7ff;--border:rgba(99,102,241,0.2);--border2:rgba(0,0,0,0.08);--text:#1e293b;--text2:#475569;--text3:#94a3b8;--shadow:0 4px 24px rgba(0,0,0,0.08);--glow:0 0 24px rgba(99,102,241,0.15);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s;}
+.page{display:none;}.page.active{display:block;}
+
+/* ═══ LANDING ═══════════════════════════════════════════════════════════ */
+#landing{min-height:100vh;position:relative;overflow:hidden;}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(99,102,241,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.04) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+[data-theme="light"] .grid-bg{background-image:linear-gradient(rgba(99,102,241,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.07) 1px,transparent 1px);}
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,0.15),transparent 70%);top:-200px;right:-100px;animation:orbFloat1 12s ease-in-out infinite;}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,rgba(16,185,129,0.12),transparent 70%);bottom:-100px;left:-100px;animation:orbFloat2 15s ease-in-out infinite;}
+.orb3{width:300px;height:300px;background:radial-gradient(circle,rgba(168,85,247,0.1),transparent 70%);top:40%;left:30%;animation:orbFloat3 18s ease-in-out infinite;}
+@keyframes orbFloat1{0%,100%{transform:translate(0,0);}50%{transform:translate(-40px,30px);}}
+@keyframes orbFloat2{0%,100%{transform:translate(0,0);}50%{transform:translate(30px,-40px);}}
+@keyframes orbFloat3{0%,100%{transform:translate(0,0);}50%{transform:translate(-20px,20px);}}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2.5rem;background:rgba(10,14,26,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border2);}
+[data-theme="light"] .nav{background:rgba(240,244,255,0.85);}
+.nav-logo{display:flex;align-items:center;gap:.7rem;font-family:var(--display);font-size:1.3rem;font-weight:800;color:var(--text);}
+.nav-logo .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+.nav-actions{display:flex;align-items:center;gap:1rem;}
+.theme-btn{background:var(--card);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:.5rem .9rem;cursor:pointer;font-size:.85rem;transition:.2s;font-family:var(--font);}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+.launch-btn-sm{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:.5rem 1.1rem;cursor:pointer;font-weight:600;font-size:.85rem;font-family:var(--font);transition:.2s;}
+.launch-btn-sm:hover{background:var(--accent2);transform:translateY(-1px);}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8rem 2rem 4rem;}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:50px;padding:.4rem 1rem;font-size:.78rem;font-family:var(--mono);color:var(--accent2);margin-bottom:1.8rem;animation:fadeUp .6s ease both;}
+.hero-tag .live-dot{width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;animation:pulse 1.5s infinite;}
+.hero-title{font-family:var(--display);font-size:clamp(3rem,8vw,6rem);font-weight:800;line-height:1.05;margin-bottom:1.4rem;animation:fadeUp .6s ease .1s both;}
+.hero-title .grad{background:linear-gradient(135deg,#818cf8,#10b981,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:clamp(1rem,2vw,1.2rem);color:var(--text2);max-width:620px;line-height:1.7;margin-bottom:2.5rem;animation:fadeUp .6s ease .2s both;}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .6s ease .3s both;}
+.cta-primary{display:flex;align-items:center;gap:.6rem;background:linear-gradient(135deg,var(--accent),#818cf8);color:#fff;border:none;border-radius:12px;padding:.9rem 2rem;font-size:1rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:.25s;box-shadow:0 4px 20px rgba(99,102,241,0.4);}
+.cta-primary:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(99,102,241,0.5);}
+.cta-secondary{display:flex;align-items:center;gap:.6rem;background:transparent;border:1px solid var(--border);color:var(--text2);border-radius:12px;padding:.9rem 2rem;font-size:1rem;font-weight:500;cursor:pointer;font-family:var(--font);transition:.25s;}
+.cta-secondary:hover{border-color:var(--accent);color:var(--text);}
+.stats-bar{display:flex;gap:2.5rem;flex-wrap:wrap;justify-content:center;margin-top:3.5rem;animation:fadeUp .6s ease .4s both;}
+.stat-item{text-align:center;}
+.stat-num{font-family:var(--display);font-size:1.8rem;font-weight:800;color:var(--text);}
+.stat-num span{background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-label{font-size:.78rem;color:var(--text3);margin-top:.2rem;font-family:var(--mono);}
+.features{position:relative;z-index:1;padding:5rem 2rem;max-width:1200px;margin:0 auto;}
+.section-title{font-family:var(--display);font-size:2.2rem;font-weight:800;text-align:center;margin-bottom:.7rem;}
+.section-sub{text-align:center;color:var(--text2);margin-bottom:3rem;font-size:1rem;}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;}
+.feature-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:2rem;transition:.3s;position:relative;overflow:hidden;}
+.feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,0.05),transparent);opacity:0;transition:.3s;}
+.feature-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:var(--glow);}
+.feature-card:hover::before{opacity:1;}
+.feature-icon{font-size:2rem;margin-bottom:1rem;}
+.feature-title{font-weight:700;font-size:1.1rem;margin-bottom:.5rem;}
+.feature-desc{font-size:.9rem;color:var(--text2);line-height:1.6;}
+.tier-section{position:relative;z-index:1;padding:4rem 2rem;max-width:900px;margin:0 auto;}
+.tier-table{background:var(--card);border:1px solid var(--border2);border-radius:16px;overflow:hidden;}
+.tier-header{display:grid;grid-template-columns:120px 1fr 1fr;padding:1rem 1.5rem;background:var(--bg3);font-size:.8rem;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;}
+.tier-row{display:grid;grid-template-columns:120px 1fr 1fr;padding:1.2rem 1.5rem;border-top:1px solid var(--border2);align-items:start;gap:1rem;}
+.tier-row:hover{background:var(--card2);}
+.tier-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;font-family:var(--mono);}
+.tier1{background:rgba(16,185,129,0.12);color:var(--green2);border:1px solid rgba(16,185,129,0.2);}
+.tier2{background:rgba(245,158,11,0.12);color:var(--yellow2);border:1px solid rgba(245,158,11,0.2);}
+.tier3{background:rgba(239,68,68,0.12);color:var(--red2);border:1px solid rgba(239,68,68,0.2);}
+.tier-example{font-size:.9rem;color:var(--text);}
+.tier-strategy{font-size:.85rem;color:var(--text2);font-style:italic;}
+.landing-footer{position:relative;z-index:1;text-align:center;padding:3rem 2rem;color:var(--text3);font-size:.85rem;border-top:1px solid var(--border2);}
+.landing-footer a{color:var(--accent2);text-decoration:none;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═══ DASHBOARD ══════════════════════════════════════════════════════════ */
+#dashboard-page{min-height:100vh;}
+.app-header{position:sticky;top:0;z-index:200;background:rgba(10,14,26,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.8rem;}
+[data-theme="light"] .app-header{background:rgba(240,244,255,0.9);}
+.app-logo{display:flex;align-items:center;gap:.7rem;font-family:var(--display);font-size:1.2rem;font-weight:800;}
+.app-logo .status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+.header-center{display:flex;align-items:center;gap:.7rem;}
+.last-update{font-family:var(--mono);font-size:.72rem;color:var(--text3);background:var(--card);border:1px solid var(--border2);border-radius:6px;padding:.3rem .8rem;}
+.market-mood{font-size:.78rem;font-weight:600;padding:.3rem .9rem;border-radius:6px;font-family:var(--mono);}
+.header-right{display:flex;align-items:center;gap:.8rem;}
+.back-btn{background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:8px;padding:.45rem .9rem;cursor:pointer;font-size:.82rem;font-family:var(--font);transition:.2s;display:flex;align-items:center;gap:.4rem;}
+.back-btn:hover{border-color:var(--accent);color:var(--text);}
+.dash-layout{display:grid;grid-template-columns:1fr;gap:1.5rem;padding:1rem 1.8rem 1.5rem;margin:0 auto;}
+@media(max-width:1100px){.main-scroll{padding-right:10px;}.right-panel{width:100%;position:relative;top:auto;right:auto;height:auto;padding:1rem;}}
+.card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.3rem;}
+.card-title{font-size:.75rem;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1rem;}
+.overview-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;}
+@media(max-width:900px){.overview-row{grid-template-columns:repeat(2,1fr);}}
+.ov-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.1rem 1.3rem;position:relative;overflow:hidden;transition:.2s;}
+.ov-card:hover{border-color:var(--accent);box-shadow:var(--glow);}
+.ov-label{font-size:.72rem;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.ov-value{font-family:var(--display);font-size:1.6rem;font-weight:800;}
+.ov-sub{font-size:.78rem;color:var(--text3);margin-top:.3rem;}
+.sector-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+@media(max-width:900px){.sector-grid{grid-template-columns:repeat(2,1fr);}}
+.sector-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:1.1rem;cursor:pointer;transition:.25s;position:relative;overflow:hidden;}
+.sector-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
+.sc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;}
+.sc-name{font-weight:700;font-size:.95rem;}
+.sc-score{font-family:var(--mono);font-size:1.1rem;font-weight:700;}
+.sc-label{font-size:.72rem;color:var(--text3);font-family:var(--mono);margin-bottom:.7rem;}
+.sc-bar{height:5px;background:var(--border2);border-radius:3px;overflow:hidden;margin-bottom:.8rem;}
+.sc-bar-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+.sc-tickers{display:flex;flex-wrap:wrap;gap:.3rem;}
+.sc-ticker{font-family:var(--mono);font-size:.65rem;background:var(--bg3);border-radius:4px;padding:.15rem .4rem;color:var(--text2);}
+.ticker-table{width:100%;border-collapse:collapse;}
+.ticker-table th{font-size:.7rem;font-family:var(--mono);color:var(--text3);text-transform:uppercase;letter-spacing:.08em;padding:.5rem .8rem;text-align:left;border-bottom:1px solid var(--border2);}
+.ticker-table td{padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,0.03);font-size:.88rem;}
+.ticker-table tr:hover td{background:var(--card2);}
+.ticker-sym{font-family:var(--mono);font-weight:700;cursor:pointer;color:var(--accent2);}
+.ticker-sym:hover{color:var(--accent);}
+.score-chip{display:inline-flex;align-items:center;gap:.3rem;font-family:var(--mono);font-size:.8rem;font-weight:600;padding:.2rem .6rem;border-radius:6px;}
+.movers-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
+.mover-list{display:flex;flex-direction:column;gap:.5rem;margin-top:.7rem;}
+.mover-item{display:flex;align-items:center;justify-content:space-between;padding:.5rem .8rem;background:var(--bg3);border-radius:8px;font-size:.85rem;}
+.mover-ticker{font-family:var(--mono);font-weight:700;}
+.mover-score{font-family:var(--mono);font-size:.85rem;font-weight:700;}
+.news-feed{max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:.6rem;margin-top:.7rem;}
+.news-feed::-webkit-scrollbar{width:4px;}
+.news-feed::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.news-item{background:var(--bg3);border-radius:8px;padding:.7rem .9rem;border-left:3px solid var(--border2);transition:.2s;animation:slideIn .3s ease;}
+.news-item:hover{border-left-color:var(--accent);}
+.news-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;}
+.news-ticker{font-family:var(--mono);font-size:.7rem;font-weight:700;color:var(--accent2);}
+.news-source{font-size:.65rem;color:var(--text3);font-family:var(--mono);}
+.news-headline{font-size:.83rem;color:var(--text);line-height:1.4;}
+.news-time{font-size:.65rem;color:var(--text3);margin-top:.3rem;font-family:var(--mono);}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:translateX(0);}}
+.alert-list{display:flex;flex-direction:column;gap:.6rem;margin-top:.7rem;}
+.alert-item{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:8px;padding:.7rem .9rem;}
+.alert-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;}
+.alert-ticker{font-family:var(--mono);font-weight:700;color:var(--yellow2);font-size:.88rem;}
+.alert-delta{font-family:var(--mono);font-size:.8rem;color:var(--yellow);}
+.alert-scores{font-size:.78rem;color:var(--text2);font-family:var(--mono);}
+.chart-wrap{position:relative;height:260px;margin-top:.7rem;}
+.right-panel{
+  position:fixed;
+  top:100px;
+  right:0;
+  width:400px;
+  height:calc(100vh - 100px);
+  z-index:150;
+  display:flex;
+  flex-direction:column;
+  padding:1rem 1rem 1rem 0;
+}
+.feed-tabs{display:flex;gap:.3rem;}
+.feed-tab{background:transparent;border:1px solid var(--border2);color:var(--text3);border-radius:8px;padding:.4rem .85rem;cursor:pointer;font-size:.78rem;font-family:var(--font);transition:.2s;}
+.feed-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.feed-tab:hover:not(.active){border-color:var(--accent);color:var(--text);}
+.social-item{background:var(--bg3);border-radius:8px;padding:.7rem .9rem;border-left:3px solid var(--purple);transition:.2s;animation:slideIn .3s ease;}
+.social-item:hover{border-left-color:var(--accent);}
+.ticker-search-row{display:flex;gap:.5rem;margin-bottom:.8rem;}
+.ticker-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:.55rem .8rem;color:var(--text);font-family:var(--mono);font-size:.85rem;outline:none;transition:.2s;text-transform:uppercase;}
+.ticker-input:focus{border-color:var(--accent);}
+.ticker-search-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:.55rem .9rem;cursor:pointer;font-size:.82rem;font-family:var(--font);font-weight:600;transition:.2s;}
+.ticker-detail-card{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:1rem;margin-top:.5rem;display:none;}
+.ticker-detail-card.visible{display:block;animation:fadeUp .3s ease;}
+.tdc-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.8rem;}
+.tdc-sym{font-family:var(--display);font-size:1.5rem;font-weight:800;color:var(--accent2);}
+.tdc-sector{font-size:.72rem;color:var(--text3);font-family:var(--mono);}
+.tdc-score{font-family:var(--mono);font-size:1.2rem;font-weight:700;}
+.tdc-meta{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;font-size:.78rem;}
+.tdc-meta-item .lbl{color:var(--text3);font-family:var(--mono);font-size:.68rem;text-transform:uppercase;}
+.tdc-meta-item .val{font-weight:600;margin-top:.1rem;}
+.tdc-news{margin-top:.8rem;}
+.tdc-news-title{font-size:.68rem;font-family:var(--mono);color:var(--text3);text-transform:uppercase;margin-bottom:.4rem;}
+.tdc-news-item{font-size:.78rem;color:var(--text2);padding:.35rem 0;border-bottom:1px solid var(--border2);line-height:1.4;}
+.badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:50px;font-size:.7rem;font-weight:600;font-family:var(--mono);}
+.badge-green{background:rgba(16,185,129,0.12);color:var(--green2);border:1px solid rgba(16,185,129,0.2);}
+.badge-red{background:rgba(239,68,68,0.1);color:var(--red2);border:1px solid rgba(239,68,68,0.2);}
+.badge-yellow{background:rgba(245,158,11,0.1);color:var(--yellow2);border:1px solid rgba(245,158,11,0.2);}
+.badge-neutral{background:rgba(148,163,184,0.1);color:var(--text2);border:1px solid rgba(148,163,184,0.2);}
+.empty-state{text-align:center;color:var(--text3);padding:2rem;font-size:.85rem;font-family:var(--mono);}
+.main-scroll{overflow-y:auto;height:calc(100vh - 100px);margin-top:38px;padding-right:410px;}
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.8rem 1.5rem;font-size:.85rem;font-weight:500;z-index:9999;opacity:0;transition:.3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══ CHAT PANEL ═════════════════════════════════════════════════════════ */
+.chat-panel{background:var(--card);border:1px solid var(--border2);border-radius:16px;display:flex;flex-direction:column;height:100%;overflow:hidden;}
+.chat-header{padding:.85rem 1.1rem;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--card);}
+.chat-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:.9rem;}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+.chat-clear{background:transparent;border:1px solid var(--border2);color:var(--text3);border-radius:6px;padding:.28rem .65rem;cursor:pointer;font-size:.7rem;font-family:var(--mono);transition:.2s;}
+.chat-clear:hover{border-color:var(--red2);color:var(--red2);}
+.chat-welcome{display:flex;align-items:flex-start;gap:.8rem;padding:1rem 1.1rem;border-bottom:1px solid var(--border2);flex-shrink:0;background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(16,185,129,0.04));}
+.cw-avatar{width:40px;height:40px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(16,185,129,0.15));border:1px solid var(--border2);}
+.cw-name{font-weight:700;font-size:.85rem;color:var(--text);margin-bottom:.2rem;}
+.cw-desc{font-size:.75rem;color:var(--text2);line-height:1.5;}
+.chat-messages{flex:1;overflow-y:auto;padding:.9rem 1rem;display:flex;flex-direction:column;gap:.75rem;}
+.chat-messages::-webkit-scrollbar{width:3px;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.chat-msg{display:flex;flex-direction:column;gap:.25rem;animation:fadeUp .22s ease;}
+.msg-user{align-items:flex-end;}
+.msg-user .msg-bubble{background:linear-gradient(135deg,var(--accent),#818cf8);color:#fff;border-radius:16px 16px 4px 16px;padding:.65rem 1rem;font-size:.85rem;line-height:1.55;max-width:88%;white-space:pre-wrap;box-shadow:0 2px 12px rgba(99,102,241,0.3);}
+.msg-ai{align-items:flex-start;}
+.msg-ai .msg-bubble{background:var(--bg2);border:1px solid var(--border2);border-radius:4px 16px 16px 16px;padding:.7rem 1rem;font-size:.84rem;line-height:1.6;max-width:96%;white-space:pre-wrap;color:var(--text);}
+[data-theme="light"] .msg-ai .msg-bubble{background:var(--bg3);}
+.msg-role{font-size:.62rem;font-family:var(--mono);color:var(--text3);letter-spacing:.06em;padding:0 .2rem;margin-bottom:.05rem;}
+.msg-user .msg-role{text-align:right;color:var(--accent2);}
+.msg-tier{display:inline-flex;align-items:center;gap:.25rem;font-size:.62rem;font-family:var(--mono);padding:.12rem .45rem;border-radius:4px;margin-top:.1rem;}
+.tier1-tag{background:rgba(16,185,129,0.1);color:var(--green2);border:1px solid rgba(16,185,129,0.2);}
+.tier2-tag{background:rgba(245,158,11,0.1);color:var(--yellow2);border:1px solid rgba(245,158,11,0.2);}
+.tier3-tag{background:rgba(239,68,68,0.1);color:var(--red2);border:1px solid rgba(239,68,68,0.2);}
+.typing-bubble{background:var(--bg2);border:1px solid var(--border2);border-radius:4px 16px 16px 16px;padding:.7rem 1rem;display:inline-flex;align-items:center;gap:.35rem;}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:typingPulse 1.2s ease-in-out infinite;}
+.typing-dot:nth-child(2){animation-delay:.2s;}
+.typing-dot:nth-child(3){animation-delay:.4s;}
+@keyframes typingPulse{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.2);}}
+.chat-footer{padding:.75rem .9rem .85rem;border-top:1px solid var(--border2);flex-shrink:0;background:var(--card);}
+.chat-input-row{display:flex;gap:.5rem;align-items:flex-end;}
+.chat-input{flex:1;background:var(--bg3);border:1.5px solid var(--border2);border-radius:12px;padding:.65rem .9rem;color:var(--text);font-family:var(--font);font-size:.85rem;outline:none;transition:.2s;resize:none;line-height:1.4;max-height:100px;}
+.chat-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,0.12);}
+.chat-send{background:linear-gradient(135deg,var(--accent),#818cf8);color:#fff;border:none;border-radius:10px;width:38px;height:38px;cursor:pointer;transition:.2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(99,102,241,0.35);}
+.chat-send:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,0.45);}
+.chat-send:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.chat-suggestions{display:flex;flex-wrap:nowrap;gap:.4rem;margin-bottom:.55rem;overflow-x:auto;}
+.chat-suggestions::-webkit-scrollbar{display:none;}
+.sugg-btn{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);border-radius:20px;padding:.3rem .75rem;cursor:pointer;font-size:.72rem;font-family:var(--font);transition:.2s;white-space:nowrap;flex-shrink:0;}
+.sugg-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(99,102,241,0.06);}
+.ctx-open-btn{display:inline-flex;align-items:center;gap:.35rem;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);color:var(--accent2);border-radius:8px;padding:.3rem .75rem;font-size:.72rem;font-family:var(--font);font-weight:600;cursor:pointer;transition:.2s;margin-top:.4rem;}
+.ctx-open-btn:hover{background:rgba(99,102,241,0.18);border-color:var(--accent);transform:translateY(-1px);}
+.chat-test-btn{background:transparent;border:1px solid var(--border2);color:var(--text3);border-radius:6px;padding:.3rem .7rem;cursor:pointer;font-size:.72rem;font-family:var(--mono);transition:.2s;}
+.chat-test-btn:hover{border-color:var(--green);color:var(--green);}
+.llm-status{padding:.6rem .9rem;border-radius:8px;font-size:.78rem;font-family:var(--mono);margin-bottom:.6rem;border:1px solid;line-height:1.5;}
+.llm-ok{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);color:var(--green2);}
+.llm-fail{background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);color:var(--red2);}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MARKET CONTEXT POPUP — Matches reference image design
+═══════════════════════════════════════════════════════════════════════ */
+.ctx-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9998;backdrop-filter:blur(8px);display:none;}
+.ctx-overlay.open{display:block;}
+
+.ctx-popup{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:9999;width:min(92vw,980px);max-height:88vh;
+  background:#0d1220;border:1px solid rgba(99,102,241,0.35);
+  border-radius:16px;box-shadow:0 32px 80px rgba(0,0,0,0.9),0 0 0 1px rgba(99,102,241,0.1);
+  display:none;flex-direction:column;overflow:hidden;
+}
+.ctx-popup.open{display:flex;}
+
+/* Sector tab bar */
+.ctx-sector-bar{
+  display:flex;align-items:center;gap:.4rem;padding:.75rem 1.2rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  background:#0a0e1a;overflow-x:auto;flex-shrink:0;
+}
+.ctx-sector-bar::-webkit-scrollbar{display:none;}
+.ctx-sector-label{font-size:.68rem;font-family:var(--mono);color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-right:.4rem;flex-shrink:0;}
+.ctx-sec-tab{
+  display:flex;align-items:center;gap:.35rem;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;padding:.3rem .85rem;cursor:pointer;
+  font-size:.75rem;font-family:var(--font);color:#94a3b8;
+  transition:.2s;white-space:nowrap;flex-shrink:0;
+}
+.ctx-sec-tab:hover{border-color:rgba(99,102,241,0.4);color:#e2e8f0;}
+.ctx-sec-tab.active{
+  background:linear-gradient(135deg,rgba(6,182,212,0.2),rgba(16,185,129,0.15));
+  border-color:#06b6d4;color:#06b6d4;font-weight:600;
+}
+.ctx-sec-tab .tab-dot{width:6px;height:6px;border-radius:50%;}
+
+/* Content tab bar */
+.ctx-content-tabs{
+  display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-shrink:0;background:#0a0e1a;
+}
+.ctx-content-tab{
+  padding:.7rem 1.4rem;font-size:.82rem;font-family:var(--font);
+  color:#64748b;cursor:pointer;border-bottom:2px solid transparent;
+  transition:.2s;display:flex;align-items:center;gap:.4rem;
+}
+.ctx-content-tab.active{color:#06b6d4;border-bottom-color:#06b6d4;}
+.ctx-content-tab:hover:not(.active){color:#94a3b8;}
+
+/* Popup scrollable body */
+.ctx-popup-body{flex:1;overflow-y:auto;padding:1.4rem;}
+.ctx-popup-body::-webkit-scrollbar{width:4px;}
+.ctx-popup-body::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.3);border-radius:2px;}
+
+/* Panel sections */
+.ctx-panel{display:none;}
+.ctx-panel.active{display:block;}
+
+/* ── AI Analysis panel ── */
+.ctx-index-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:1rem;
+}
+.ctx-index-title{font-family:var(--display);font-size:1.6rem;font-weight:800;color:#e2e8f0;margin-bottom:.25rem;}
+.ctx-index-meta{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+.ctx-index-tag{
+  background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);
+  color:#818cf8;border-radius:4px;padding:.15rem .5rem;
+  font-size:.62rem;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;
+}
+.ctx-index-sub{font-size:.72rem;color:#64748b;font-family:var(--mono);}
+.ctx-sentiment-badge{
+  background:rgba(245,158,11,0.15);border:2px solid #f59e0b;
+  color:#f59e0b;border-radius:8px;padding:.4rem 1rem;
+  font-size:.9rem;font-weight:700;white-space:nowrap;
+}
+.ctx-sentiment-badge.positive{background:rgba(16,185,129,0.15);border-color:#10b981;color:#10b981;}
+.ctx-sentiment-badge.negative{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#ef4444;}
+
+/* Sentiment slider */
+.ctx-slider-wrap{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:1rem;
+}
+.ctx-slider-labels{display:flex;justify-content:space-between;font-size:.65rem;color:#64748b;font-family:var(--mono);margin-bottom:.8rem;}
+.ctx-slider-track{
+  position:relative;height:10px;border-radius:6px;
+  background:linear-gradient(to right,#ef4444 0%,#f59e0b 40%,#eab308 55%,#84cc16 70%,#10b981 100%);
+  margin-bottom:.8rem;
+}
+.ctx-slider-thumb{
+  position:absolute;top:50%;transform:translate(-50%,-50%);
+  width:18px;height:18px;border-radius:50%;
+  background:#fff;border:3px solid #1e293b;
+  box-shadow:0 0 0 3px rgba(255,255,255,0.3),0 2px 8px rgba(0,0,0,0.5);
+  transition:left .6s ease;
+}
+.ctx-slider-score{text-align:center;font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#fbbf24;letter-spacing:.05em;}
+
+/* Trend box */
+.ctx-trend-box{
+  display:flex;align-items:flex-start;gap:.8rem;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;padding:.9rem 1.1rem;margin-bottom:1rem;
+}
+.ctx-trend-icon{font-size:1.3rem;flex-shrink:0;margin-top:.1rem;}
+.ctx-trend-label{font-size:.72rem;font-family:var(--mono);color:#64748b;margin-bottom:.2rem;text-transform:uppercase;letter-spacing:.06em;}
+.ctx-trend-title{font-size:.95rem;font-weight:700;color:#fbbf24;margin-bottom:.2rem;}
+.ctx-trend-detail{font-size:.78rem;color:#94a3b8;font-family:var(--mono);line-height:1.5;}
+
+/* Three-column cards */
+.ctx-signal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem;}
+@media(max-width:700px){.ctx-signal-grid{grid-template-columns:1fr;}}
+.ctx-signal-card{border-radius:10px;padding:1rem;border:1px solid;}
+.ctx-signal-card.pos{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.2);}
+.ctx-signal-card.neu{background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2);}
+.ctx-signal-card.neg{background:rgba(239,68,68,0.06);border-color:rgba(239,68,68,0.2);}
+.ctx-signal-head{display:flex;align-items:center;gap:.45rem;margin-bottom:.6rem;}
+.ctx-signal-icon{font-size:1rem;}
+.ctx-signal-label{font-weight:700;font-size:.88rem;}
+.ctx-signal-card.pos .ctx-signal-label{color:#10b981;}
+.ctx-signal-card.neu .ctx-signal-label{color:#f59e0b;}
+.ctx-signal-card.neg .ctx-signal-label{color:#ef4444;}
+.ctx-signal-pct{font-family:var(--mono);font-size:1.6rem;font-weight:800;margin-bottom:.5rem;}
+.ctx-signal-card.pos .ctx-signal-pct{color:#10b981;}
+.ctx-signal-card.neu .ctx-signal-pct{color:#f59e0b;}
+.ctx-signal-card.neg .ctx-signal-pct{color:#ef4444;}
+.ctx-signal-bar{height:4px;border-radius:2px;margin-bottom:.7rem;overflow:hidden;background:rgba(255,255,255,0.06);}
+.ctx-signal-bar-fill{height:100%;border-radius:2px;}
+.ctx-signal-card.pos .ctx-signal-bar-fill{background:#10b981;}
+.ctx-signal-card.neu .ctx-signal-bar-fill{background:#f59e0b;}
+.ctx-signal-card.neg .ctx-signal-bar-fill{background:#ef4444;}
+.ctx-signal-bullets{list-style:none;display:flex;flex-direction:column;gap:.35rem;}
+.ctx-signal-bullets li{display:flex;align-items:flex-start;gap:.45rem;font-size:.75rem;color:#94a3b8;line-height:1.4;}
+.ctx-signal-bullets li::before{content:'●';flex-shrink:0;margin-top:.1rem;}
+.ctx-signal-card.pos .ctx-signal-bullets li::before{color:#10b981;}
+.ctx-signal-card.neu .ctx-signal-bullets li::before{color:#f59e0b;}
+.ctx-signal-card.neg .ctx-signal-bullets li::before{color:#ef4444;}
+.ctx-signal-bullets li b{color:#e2e8f0;font-weight:600;}
+.ctx-signal-bullets li span{color:#64748b;font-size:.7rem;}
+
+/* Ticker scrollbar at bottom */
+.ctx-ticker-bar{
+  background:#070b15;border-top:1px solid rgba(255,255,255,0.06);
+  padding:.55rem 1rem;display:flex;gap:1.2rem;overflow-x:auto;flex-shrink:0;
+  font-family:var(--mono);font-size:.72rem;align-items:center;
+}
+.ctx-ticker-bar::-webkit-scrollbar{display:none;}
+.ctx-tick-item{display:flex;align-items:center;gap:.35rem;white-space:nowrap;flex-shrink:0;}
+.ctx-tick-sym{color:#94a3b8;font-weight:600;}
+.ctx-tick-arrow{font-size:.65rem;}
+.ctx-tick-score{font-weight:700;}
+
+/* ── Charts panel ── */
+.ctx-chart-section{margin-bottom:1.2rem;}
+.ctx-chart-title{font-size:.72rem;font-family:var(--mono);color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.7rem;}
+.ctx-chart-canvas-wrap{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:1rem;height:240px;position:relative;}
+
+/* ── Heatmap panel ── */
+.ctx-heatmap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.5rem;}
+.ctx-heat-cell{border-radius:8px;padding:.7rem;text-align:center;cursor:pointer;transition:.2s;}
+.ctx-heat-cell:hover{transform:scale(1.04);}
+.ctx-heat-sym{font-family:var(--mono);font-size:.72rem;font-weight:700;margin-bottom:.25rem;}
+.ctx-heat-score{font-family:var(--mono);font-size:1rem;font-weight:800;}
+
+/* Close btn */
+.ctx-close-btn{
+  position:absolute;top:1rem;right:1.2rem;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  color:#94a3b8;border-radius:8px;padding:.35rem .7rem;
+  cursor:pointer;font-size:.78rem;font-family:var(--font);transition:.2s;z-index:10;
+}
+.ctx-close-btn:hover{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#f87171;}
+
+/* ═══ LIVE MARKET TICKER SCROLLBAR ══════════════════════════════════════ */
+.live-ticker-wrap{
+  position:fixed;top:62px;left:0;right:0;z-index:199;
+  background:#070b15;border-bottom:1px solid rgba(99,102,241,0.25);
+  border-top:1px solid rgba(99,102,241,0.1);
+  height:38px;overflow:hidden;display:flex;align-items:center;
+}
+.live-ticker-label{
+  flex-shrink:0;padding:0 1rem;font-family:var(--mono);font-size:.68rem;
+  font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:.1em;
+  border-right:1px solid rgba(99,102,241,0.25);height:100%;
+  display:flex;align-items:center;gap:.4rem;background:#070b15;z-index:1;
+}
+.live-ticker-label .blink{width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;animation:pulse 1.5s infinite;}
+.ticker-scroll-track{flex:1;overflow:hidden;position:relative;}
+.ticker-scroll-inner{
+  display:flex;gap:0;
+  animation:tickerScroll 60s linear infinite;
+  white-space:nowrap;
+}
+.ticker-scroll-inner:hover{animation-play-state:paused;}
+@keyframes tickerScroll{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+.tick-item{
+  display:inline-flex;align-items:center;gap:.5rem;
+  padding:0 1.4rem;height:38px;border-right:1px solid rgba(255,255,255,0.04);
+  font-family:var(--mono);font-size:.72rem;flex-shrink:0;cursor:pointer;
+  transition:background .2s;
+}
+.tick-item:hover{background:rgba(99,102,241,0.08);}
+.tick-name{color:#94a3b8;font-weight:600;font-size:.7rem;}
+.tick-value{font-weight:800;font-size:.8rem;}
+.tick-change{font-size:.65rem;display:flex;align-items:center;gap:.15rem;}
+.tick-sep{color:#1e293b;font-size:1rem;padding:0 .3rem;}
+
+/* PDF Download button */
+.pdf-dl-btn{
+  display:inline-flex;align-items:center;gap:.35rem;
+  background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);
+  color:#10b981;border-radius:8px;padding:.3rem .75rem;
+  font-size:.72rem;font-family:var(--font);font-weight:600;
+  cursor:pointer;transition:.2s;margin-top:.4rem;
+}
+.pdf-dl-btn:hover{background:rgba(16,185,129,0.2);transform:translateY(-1px);}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CONTEXT POPUP — Full redesign
+═══════════════════════════════════════════════════════════════════════ */
+
+/* Popup wrapper */
+#ctxOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9998;backdrop-filter:blur(6px);}
+#ctxPopup{
+  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:9999;width:min(94vw,920px);max-height:88vh;
+  overflow-y:auto;
+  background:linear-gradient(160deg,#0d1220 0%,#111827 100%);
+  border:1px solid rgba(99,102,241,0.3);
+  border-radius:20px;
+  box-shadow:0 32px 80px rgba(0,0,0,0.85),0 0 0 1px rgba(99,102,241,0.08);
+}
+#ctxPopup::-webkit-scrollbar{width:5px;}
+#ctxPopup::-webkit-scrollbar-thumb{background:rgba(99,102,241,0.35);border-radius:3px;}
+
+/* Header */
+.ctx-header{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  padding:1.3rem 1.6rem 1.1rem;
+  background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(16,185,129,0.06));
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  position:sticky;top:0;z-index:2;
+  backdrop-filter:blur(20px);
+  border-radius:20px 20px 0 0;
+}
+.ctx-title{
+  font-family:var(--display);font-size:1.15rem;font-weight:800;
+  color:#e2e8f0;display:flex;align-items:center;gap:.5rem;
+}
+.ctx-close{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  color:#94a3b8;border-radius:8px;
+  padding:.35rem .85rem;cursor:pointer;
+  font-size:.8rem;font-family:var(--font);
+  transition:.2s;flex-shrink:0;margin-top:.1rem;
+}
+.ctx-close:hover{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#f87171;}
+
+/* Body */
+.ctx-body{padding:1.4rem 1.6rem 1.8rem;}
+
+/* Section */
+.ctx-section{margin-bottom:1.8rem;}
+.ctx-section:last-child{margin-bottom:0;}
+.ctx-section-title{
+  font-size:.68rem;font-family:var(--mono);
+  color:#64748b;text-transform:uppercase;letter-spacing:.12em;
+  margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;
+}
+.ctx-section-title::after{
+  content:'';flex:1;height:1px;background:rgba(255,255,255,0.05);
+}
+
+/* Ticker grid — responsive cards */
+.ctx-ticker-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:.85rem;
+}
+.ctx-ticker-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;padding:1rem 1.1rem;
+  transition:.25s;position:relative;overflow:hidden;
+  cursor:default;
+}
+.ctx-ticker-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(99,102,241,0.04),transparent);
+  opacity:0;transition:.25s;
+}
+.ctx-ticker-card:hover{
+  border-color:rgba(99,102,241,0.35);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+}
+.ctx-ticker-card:hover::before{opacity:1;}
+.ctx-ticker-sym{
+  font-family:var(--display);font-size:1.2rem;font-weight:800;
+  color:var(--accent2);margin-bottom:.15rem;letter-spacing:.02em;
+}
+.ctx-ticker-name{
+  font-size:.65rem;color:#64748b;margin-bottom:.55rem;
+  font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;
+}
+.ctx-ticker-score{
+  font-family:var(--mono);font-size:1.4rem;font-weight:800;
+  margin-bottom:.1rem;
+}
+.ctx-ticker-label{font-size:.7rem;color:#64748b;margin-bottom:.65rem;}
+.ctx-mini-bar{
+  height:5px;background:rgba(255,255,255,0.06);
+  border-radius:3px;overflow:hidden;margin-bottom:.65rem;
+}
+.ctx-mini-bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.ctx-ticker-meta{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.5rem;}
+.ctx-ticker-trend{
+  font-size:.68rem;font-weight:700;margin-bottom:.3rem;
+  display:flex;align-items:center;gap:.3rem;
+}
+.ctx-ticker-vol{font-size:.62rem;color:#475569;font-family:var(--mono);}
+
+/* Sector pills */
+.ctx-sector-pills{display:flex;flex-wrap:wrap;gap:.6rem;}
+.ctx-sector-pill{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:50px;padding:.4rem 1.1rem;
+  display:flex;align-items:center;gap:.7rem;
+  transition:.2s;cursor:default;
+}
+.ctx-sector-pill:hover{border-color:rgba(99,102,241,0.4);}
+.ctx-sector-pill-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ctx-sector-pill-name{font-weight:600;font-size:.82rem;color:#e2e8f0;}
+.ctx-sector-pill-score{font-family:var(--mono);font-size:.8rem;font-weight:700;}
+.ctx-sector-pill-label{font-size:.68rem;color:#64748b;}
+
+/* Chart */
+.ctx-chart-wrap{
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;padding:1.1rem;
+  height:220px;position:relative;
+}
+
+/* News list */
+.ctx-news-list{display:flex;flex-direction:column;gap:.6rem;}
+.ctx-news-item{
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:.75rem 1rem;
+  border-left:3px solid;
+  transition:.2s;
+}
+.ctx-news-item:hover{background:rgba(255,255,255,0.04);}
+.ctx-news-item-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:.4rem;gap:.5rem;
+}
+.ctx-news-ticker{
+  font-family:var(--mono);font-size:.68rem;font-weight:700;
+  color:var(--accent2);background:rgba(99,102,241,0.1);
+  padding:.1rem .45rem;border-radius:4px;flex-shrink:0;
+}
+.ctx-news-meta{font-size:.62rem;color:#475569;font-family:var(--mono);}
+.ctx-news-headline{font-size:.84rem;color:#e2e8f0;line-height:1.5;margin-bottom:.35rem;}
+.ctx-news-footer{display:flex;align-items:center;gap:.6rem;}
+.ctx-news-score{font-family:var(--mono);font-size:.7rem;font-weight:700;}
+.ctx-news-sentiment{
+  font-size:.62rem;color:#64748b;font-family:var(--mono);
+  text-transform:capitalize;
+}
+
+/* Social list */
+.ctx-social-list{display:flex;flex-direction:column;gap:.6rem;}
+.ctx-social-item{
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;padding:.75rem 1rem;
+  border-left:3px solid;
+  transition:.2s;
+}
+.ctx-social-item:hover{background:rgba(255,255,255,0.04);}
+.ctx-social-text{font-size:.83rem;color:#e2e8f0;line-height:1.5;margin-bottom:.4rem;}
+.ctx-social-meta{
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  font-size:.65rem;color:#64748b;font-family:var(--mono);
+}
+.ctx-social-platform{
+  background:rgba(168,85,247,0.12);color:#a855f7;
+  border-radius:4px;padding:.1rem .4rem;font-weight:600;
+}
+.ctx-social-ticker{color:var(--accent2);font-weight:700;}
+
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ LANDING PAGE ═══════════════════════════ -->
+<div id="landing" class="page active">
+  <div class="grid-bg"></div>
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+  <nav class="nav">
+    <div class="nav-logo"><div class="dot"></div>MarketPulse AI</div>
+    <div class="nav-actions">
+      <button class="theme-btn" onclick="toggleTheme()">☀ / ☾</button>
+      <button class="launch-btn-sm" onclick="goDashboard()">Launch Dashboard →</button>
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="hero-tag"><span class="live-dot"></span>Live Sentiment · 5-min Batch · Real-time Streaming</div>
+    <h1 class="hero-title">Read the Market's<br/><span class="grad">Mood in Seconds</span></h1>
+    <p class="hero-sub">MarketPulse AI aggregates thousands of news articles and social posts daily, delivering sector-wise and ticker-specific sentiment scores — so you act before the crowd.</p>
+    <div class="hero-cta">
+      <button class="cta-primary" onclick="goDashboard()">📊 Open Dashboard <span>→</span></button>
+      <button class="cta-secondary" onclick="document.querySelector('.features').scrollIntoView({behavior:'smooth'})">Learn More ↓</button>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-item"><div class="stat-num"><span>16</span></div><div class="stat-label">Sectors Tracked</div></div>
+      <div class="stat-item"><div class="stat-num"><span>80+</span></div><div class="stat-label">Tickers Live</div></div>
+      <div class="stat-item"><div class="stat-num"><span>5s</span></div><div class="stat-label">Update Interval</div></div>
+      <div class="stat-item"><div class="stat-num"><span>RAG</span></div><div class="stat-label">Powered Chat</div></div>
+    </div>
+  </section>
+  <section class="features">
+    <h2 class="section-title">Everything a Trader Needs</h2>
+    <p class="section-sub">From raw data to market mood in one intelligent layer.</p>
+    <div class="feature-grid">
+      <div class="feature-card"><div class="feature-icon">📡</div><div class="feature-title">Live Streaming Data</div><div class="feature-desc">Synthetic market data streams every second, simulating real news feeds and social media posts with timestamped sentiment shifts.</div></div>
+      <div class="feature-card"><div class="feature-icon">🔥</div><div class="feature-title">5-Minute Batch Processing</div><div class="feature-desc">Data is grouped into 5-minute windows. Sector averages recalculate automatically, giving you a smooth real-time trend view.</div></div>
+      <div class="feature-card"><div class="feature-icon">⚡</div><div class="feature-title">16 Sector Coverage</div><div class="feature-desc">Technology, Energy, Financials, Healthcare, Consumer, Crypto, Metals, Auto, Mining, Refineries, Telecom, Logistics, Power, Water, Alcohol & Education.</div></div>
+      <div class="feature-card"><div class="feature-icon">⚠️</div><div class="feature-title">Divergence Alerts</div><div class="feature-desc">Flags when news sentiment and social sentiment sharply diverge — a key contrarian signal for hidden risk.</div></div>
+      <div class="feature-card"><div class="feature-icon">🤖</div><div class="feature-title">RAG-Powered Chat</div><div class="feature-desc">Ask the AI agent anything about market sentiment. Backed by NSE filings, tweet data, RSS feeds, and live scores.</div></div>
+      <div class="feature-card"><div class="feature-icon">🛡️</div><div class="feature-title">3-Tier Safety System</div><div class="feature-desc">In-scope questions get data-backed answers. Out-of-scope gets polite redirection. Forbidden requests get hard guardrails.</div></div>
+    </div>
+  </section>
+  <section class="tier-section">
+    <h2 class="section-title">How the AI Responds</h2>
+    <p class="section-sub">A 3-tier classification system keeps responses safe and useful.</p>
+    <div class="tier-table">
+      <div class="tier-header"><span>Tier</span><span>Example Query</span><span>AI Strategy</span></div>
+      <div class="tier-row"><div><span class="tier-badge tier1">✓ Tier 1</span></div><div class="tier-example">"Why is $AAPL sentiment negative this afternoon?"</div><div class="tier-strategy">Direct Answer + Citation. Provides score, source count, key themes.</div></div>
+      <div class="tier-row"><div><span class="tier-badge tier2">→ Tier 2</span></div><div class="tier-example">"What's the weather in Mumbai today?"</div><div class="tier-strategy">Polite Redirection. "I'm a sentiment assistant — can I show you Energy sector sentiment instead?"</div></div>
+      <div class="tier-row"><div><span class="tier-badge tier3">✗ Tier 3</span></div><div class="tier-example">"Should I buy NVDA stock right now?"</div><div class="tier-strategy">Hard Guardrail + Pivot. Refuses advice, then shares NVDA's current sentiment score with key drivers.</div></div>
+    </div>
+  </section>
+  <footer class="landing-footer"><p>MarketPulse AI · Built with FastAPI + RAG + GPT-4 · NSE Data · Live RSS</p><p style="margin-top:.5rem;font-size:.75rem;">⚠️ For informational purposes only. Not financial advice.</p></footer>
+</div>
+
+<!-- ═══════════════════════════ DASHBOARD PAGE ═══════════════════════════ -->
+<div id="dashboard-page" class="page">
+  <div class="grid-bg"></div>
+  <header class="app-header">
+    <div class="app-logo"><div class="status-dot"></div>MarketPulse AI</div>
+    <div class="header-center">
+      <div class="last-update" id="lastUpdate">Loading...</div>
+      <div class="market-mood badge badge-neutral" id="marketMood">Calculating...</div>
+    </div>
+    <div class="header-right">
+      <button class="theme-btn" onclick="toggleTheme()">☀ / ☾</button>
+      <button class="back-btn" onclick="goLanding()">← Landing</button>
+    </div>
+  </header>
+  <div id="apiBanner" style="display:none;background:rgba(245,158,11,0.12);border-bottom:1px solid rgba(245,158,11,0.3);color:#fbbf24;padding:.6rem 1.8rem;font-size:.82rem;align-items:center;gap:.5rem;"></div>
+  <div class="main-scroll">
+    <div class="dash-layout">
+      <div>
+        <div class="overview-row">
+          <div class="ov-card"><div class="ov-label">Overall Sentiment</div><div class="ov-value" id="ovScore">—</div><div class="ov-sub" id="ovLabel">Loading...</div></div>
+          <div class="ov-card"><div class="ov-label">Top Bullish</div><div class="ov-value" id="ovBullish" style="font-size:1.3rem;">—</div><div class="ov-sub" id="ovBullishScore">—</div></div>
+          <div class="ov-card"><div class="ov-label">Top Bearish</div><div class="ov-value" id="ovBearish" style="font-size:1.3rem;">—</div><div class="ov-sub" id="ovBearishScore">—</div></div>
+          <div class="ov-card"><div class="ov-label">Batch Count</div><div class="ov-value" id="ovBatch">—</div><div class="ov-sub">5-min windows</div></div>
+        </div>
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div class="card-title">Sector Sentiment — Live</div>
+          <div class="sector-grid" id="sectorGrid"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.2rem;">
+          <div class="card"><div class="card-title">Sector Radar</div><div class="chart-wrap"><canvas id="radarChart"></canvas></div></div>
+          <div class="card"><div class="card-title">Sentiment Distribution</div><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
+        </div>
+        <div class="movers-grid" style="margin-bottom:1.2rem;">
+          <div class="card"><div class="card-title">🚀 Top Bullish Tickers</div><div class="mover-list" id="bullishList"></div></div>
+          <div class="card"><div class="card-title">🔻 Top Bearish Tickers</div><div class="mover-list" id="bearishList"></div></div>
+        </div>
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div class="card-title">⚠️ Divergence Alerts — News vs Social</div>
+          <div class="alert-list" id="alertList"><div class="empty-state">Scanning for divergences...</div></div>
+        </div>
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div class="card-title">🔍 Ticker Lookup</div>
+          <div class="ticker-search-row">
+            <input class="ticker-input" id="tickerInput" placeholder="Enter ticker (e.g. AAPL)" maxlength="10" onkeydown="if(event.key==='Enter')lookupTicker()"/>
+            <button class="ticker-search-btn" onclick="lookupTicker()">Search</button>
+          </div>
+          <div class="ticker-detail-card" id="tickerDetail"></div>
+        </div>
+        <div class="card" style="margin-bottom:1.2rem;">
+          <div class="card-title">All Tickers — Sentiment Scoreboard</div>
+          <div style="overflow-x:auto;">
+            <table class="ticker-table">
+              <thead><tr><th>Ticker</th><th>Sector</th><th>Composite</th><th>News</th><th>Social</th><th>Confidence</th><th>Trend</th></tr></thead>
+              <tbody id="tickerTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+            <div class="feed-tabs">
+              <button class="feed-tab active" id="tabNews" onclick="switchFeedTab('news')">📰 News Feed</button>
+              <button class="feed-tab" id="tabSocial" onclick="switchFeedTab('social')">💬 Social Media</button>
+            </div>
+            <span style="font-size:.68rem;font-family:var(--mono);color:var(--text3);" id="feedCount"></span>
+          </div>
+          <div class="news-feed" id="newsFeed"></div>
+          <div class="news-feed" id="socialFeed" style="display:none;"></div>
+        </div>
+      </div>
+      <!-- RIGHT: Chat panel -->
+      <div class="right-panel">
+        <div class="chat-panel">
+          <div class="chat-header">
+            <div class="chat-title"><div class="ai-dot"></div><span>MarketPulse Chat</span></div>
+            <div style="display:flex;gap:.5rem;align-items:center;">
+              <button class="chat-test-btn" onclick="testLLM()" title="Test API">🔌</button>
+              <button class="chat-test-btn" onclick="downloadChatPDF()" title="Download PDF" style="color:var(--green2);border-color:rgba(16,185,129,0.3);">⬇ PDF</button>
+              <button class="chat-clear" onclick="clearChat()">Clear</button>
+            </div>
+          </div>
+          <div class="chat-welcome" id="chatWelcome">
+            <div class="cw-avatar">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="url(#cg)"/><path d="M8 16c2-3 10-3 12 0M10 11h.01M18 11h.01" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><defs><linearGradient id="cg" x1="0" y1="0" x2="28" y2="28"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#10b981"/></linearGradient></defs></svg>
+            </div>
+            <div><div class="cw-name">MarketPulse AI</div><div class="cw-desc">Ask me about live market sentiment — Nifty 50, gold, tech stocks, sector trends, divergence alerts &amp; more.</div></div>
+          </div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-footer">
+            <div class="chat-suggestions" id="chatSuggestions">
+              <button class="sugg-btn" onclick="sendSuggestion(this)">📊 Nifty 50 today</button>
+              <button class="sugg-btn" onclick="sendSuggestion(this)">💰 Gold sentiment</button>
+              <button class="sugg-btn" onclick="sendSuggestion(this)">⚠️ Risk alerts</button>
+            </div>
+            <div class="chat-input-row">
+              <textarea class="chat-input" id="chatInput" placeholder="Ask about any stock, sector or trend…" rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}"></textarea>
+              <button class="chat-send" id="chatSendBtn" onclick="sendChat()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONTEXT POPUP (chat-driven) ═══════════════ -->
+<div id="ctxOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9998;backdrop-filter:blur(4px);" onclick="closeContextPopup()"></div>
+<div id="ctxPopup" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9999;width:min(92vw,860px);max-height:85vh;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
+  <div id="ctxContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = (location.protocol==='file:'||location.port==='') ? 'http://localhost:8000' : '';
+let dashData=null, chatHistory=[], radarChart=null, barChart=null, refreshTimer=null;
+let _ctxBarChart=null, _ctxDivChart=null;
+let _ctxCurrentData=null;
+
+// ── THEME ──────────────────────────────────────────────────────────────────
+function toggleTheme(){const h=document.documentElement;const d=h.dataset.theme==='dark';h.dataset.theme=d?'light':'dark';localStorage.setItem('theme',h.dataset.theme);if(radarChart)updateCharts();}
+(function(){const s=localStorage.getItem('theme');if(s)document.documentElement.dataset.theme=s;})();
+function getThemeVars(){const s=getComputedStyle(document.documentElement);return{text:s.getPropertyValue('--text').trim(),text2:s.getPropertyValue('--text2').trim(),text3:s.getPropertyValue('--text3').trim(),border:s.getPropertyValue('--border').trim(),card:s.getPropertyValue('--card').trim()};}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────
+function goDashboard(){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('dashboard-page').classList.add('active');document.getElementById('liveTickerWrap').style.display='flex';startDashboard();}
+function goLanding(){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('landing').classList.add('active');document.getElementById('liveTickerWrap').style.display='none';if(refreshTimer)clearInterval(refreshTimer);}
+
+// ── DASHBOARD ──────────────────────────────────────────────────────────────
+function startDashboard(){fetchDashboard();checkApiStatus();refreshTimer=setInterval(fetchDashboard,2000);}
+
+async function checkApiStatus(){
+  try{const r=await fetch(API+'/api/debug');const d=await r.json();const banner=document.getElementById('apiBanner');
+  if(!d.api_key_set){banner.innerHTML='⚠️ <b>API Key Missing</b> — Chat is in Demo Mode. Set <code>API_KEY</code> in <code>.env</code> and restart.';banner.style.display='flex';}else{banner.style.display='none';}}catch(e){}
+}
+
+async function fetchDashboard(){
+  try{const r=await fetch(API+'/api/dashboard');if(!r.ok)return;dashData=await r.json();renderDashboard(dashData);}
+  catch(e){document.getElementById('lastUpdate').textContent='⚠ Backend unreachable — is python main.py running?';}
+}
+
+function renderDashboard(d){
+  const ts=new Date(d.timestamp);
+  document.getElementById('lastUpdate').textContent='Updated: '+ts.toLocaleTimeString();
+  const moodEl=document.getElementById('marketMood');moodEl.textContent=d.market_mood;moodEl.className='market-mood badge '+sentimentClass(d.overall_score);
+  document.getElementById('ovScore').textContent=fmt(d.overall_score);document.getElementById('ovScore').style.color=d.overall_score>=0.2?'var(--green)':d.overall_score<=-0.2?'var(--red)':'var(--yellow)';
+  document.getElementById('ovLabel').textContent=d.market_mood;document.getElementById('ovBatch').textContent=d.batch_count;
+  if(d.top_bullish?.length){document.getElementById('ovBullish').textContent='$'+d.top_bullish[0].ticker;document.getElementById('ovBullish').style.color='var(--green)';document.getElementById('ovBullishScore').textContent=fmt(d.top_bullish[0].score)+' · '+d.top_bullish[0].label;}
+  if(d.top_bearish?.length){document.getElementById('ovBearish').textContent='$'+d.top_bearish[0].ticker;document.getElementById('ovBearish').style.color='var(--red)';document.getElementById('ovBearishScore').textContent=fmt(d.top_bearish[0].score)+' · '+d.top_bearish[0].label;}
+  if(d.sectors&&d.sectors.length)renderSectors(d.sectors);
+  updateCharts(d.sectors);renderMovers(d.top_bullish,d.top_bearish);renderAlerts(d.divergence_alerts);renderNews(d.news_feed);renderTickerTable(d.sectors);
+}
+
+function renderSectors(sectors){
+  const grid=document.getElementById('sectorGrid');
+  grid.innerHTML=sectors.map(s=>{
+    const barPct=Math.round(((s.score+1)/2)*100);
+    const tickers=s.tickers.slice(0,4).map(t=>`<span class="sc-ticker">${t.ticker}</span>`).join('');
+    return `<div class="sector-card" onclick="filterTicker('${s.sector}')" style="border-left:3px solid ${s.hex};">
+      <div class="sc-head"><span class="sc-name">${s.sector}</span><span class="sc-score" style="color:${s.color}">${fmt(s.score)}</span></div>
+      <div class="sc-label">${s.label}${s.divergence?' · ⚠ Divergence':''}</div>
+      <div class="sc-bar"><div class="sc-bar-fill" style="width:${barPct}%;background:${s.color};"></div></div>
+      <div class="sc-tickers">${tickers}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateCharts(sectors){
+  const tv=getThemeVars();if(!sectors&&dashData)sectors=dashData.sectors;if(!sectors)return;
+  const labels=sectors.map(s=>s.sector.length>10?s.sector.substring(0,10)+'…':s.sector);
+  const scores=sectors.map(s=>s.score);const colors=sectors.map(s=>s.hex);
+  if(radarChart){radarChart.data.labels=labels;radarChart.data.datasets[0].data=scores;radarChart.options.scales.r.grid.color=tv.border;radarChart.options.scales.r.ticks.color=tv.text3;radarChart.options.scales.r.pointLabels.color=tv.text2;radarChart.update('none');}
+  else{const rCtx=document.getElementById('radarChart').getContext('2d');radarChart=new Chart(rCtx,{type:'radar',data:{labels,datasets:[{label:'Sentiment',data:scores,backgroundColor:'rgba(99,102,241,0.15)',borderColor:'#6366f1',borderWidth:2,pointBackgroundColor:colors,pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:{r:{min:-1,max:1,grid:{color:tv.border},ticks:{stepSize:0.5,color:tv.text3,font:{family:'JetBrains Mono',size:9},backdropColor:'transparent'},pointLabels:{color:tv.text2,font:{family:'Space Grotesk',size:10}}}},plugins:{legend:{display:false}}}});}
+  if(barChart){barChart.data.datasets[0].data=scores;barChart.data.datasets[0].backgroundColor=colors.map(c=>c+'cc');barChart.options.scales.x.ticks.color=tv.text2;barChart.options.scales.y.ticks.color=tv.text3;barChart.update('none');}
+  else{const bCtx=document.getElementById('barChart').getContext('2d');barChart=new Chart(bCtx,{type:'bar',data:{labels,datasets:[{label:'Score',data:scores,backgroundColor:colors.map(c=>c+'cc'),borderColor:colors,borderWidth:1,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:{x:{ticks:{color:tv.text2,font:{family:'Space Grotesk',size:9},maxRotation:30},grid:{color:tv.border}},y:{min:-1,max:1,ticks:{color:tv.text3,font:{family:'JetBrains Mono',size:9}},grid:{color:tv.border}}},plugins:{legend:{display:false}}}});}
+}
+
+function renderMovers(bullish,bearish){
+  document.getElementById('bullishList').innerHTML=(bullish||[]).map(t=>`<div class="mover-item"><span class="mover-ticker" style="color:var(--green2)">$${t.ticker}</span><span class="mover-score" style="color:var(--green)">${fmt(t.score)}</span></div>`).join('');
+  document.getElementById('bearishList').innerHTML=(bearish||[]).map(t=>`<div class="mover-item"><span class="mover-ticker" style="color:var(--red2)">$${t.ticker}</span><span class="mover-score" style="color:var(--red)">${fmt(t.score)}</span></div>`).join('');
+}
+
+function renderAlerts(alerts){
+  const el=document.getElementById('alertList');
+  if(!alerts?.length){el.innerHTML='<div class="empty-state">✓ No divergence alerts detected</div>';return;}
+  el.innerHTML=alerts.map(a=>`<div class="alert-item"><div class="alert-head"><span class="alert-ticker">⚠ $${a.ticker}</span><span class="alert-delta">Δ ${a.divergence.toFixed(3)}</span></div><div class="alert-scores">News: <b style="color:${a.news_score>0?'var(--green)':'var(--red)'};">${fmt(a.news_score)}</b> &nbsp;·&nbsp; Social: <b style="color:${a.social_score>0?'var(--green)':'var(--red)'};">${fmt(a.social_score)}</b> &nbsp;·&nbsp;${a.sector}</div><div class="alert-dir">${a.direction}</div></div>`).join('');
+}
+
+let _activeFeedTab='news';
+function switchFeedTab(tab){_activeFeedTab=tab;document.getElementById('newsFeed').style.display=tab==='news'?'':'none';document.getElementById('socialFeed').style.display=tab==='social'?'':'none';document.getElementById('tabNews').classList.toggle('active',tab==='news');document.getElementById('tabSocial').classList.toggle('active',tab==='social');if(tab==='social')fetchSocialFeed();}
+
+function renderNews(news){
+  const el=document.getElementById('newsFeed');if(!news?.length){el.innerHTML='<div class="empty-state">Waiting for news...</div>';return;}
+  document.getElementById('feedCount').textContent=news.length+' items';
+  el.innerHTML=news.map(n=>{const sc=n.score>0.15?'var(--green)':n.score<-0.15?'var(--red)':'var(--yellow)';const t=new Date(n.timestamp);return`<div class="news-item" style="border-left-color:${sc}"><div class="news-head"><span class="news-ticker">$${n.ticker}</span><span class="news-source">${n.source||n.platform||''}</span></div><div class="news-headline">${n.headline||n.text||''}</div><div class="news-time">${t.toLocaleTimeString()} · <span style="color:${sc};font-weight:600;">${fmt(n.score)}</span></div></div>`;}).join('');
+}
+
+async function fetchSocialFeed(){
+  try{const r=await fetch(API+'/api/social?limit=40');if(!r.ok)return;const d=await r.json();renderSocialFeed(d.posts);}catch(e){}
+}
+
+function renderSocialFeed(posts){
+  const el=document.getElementById('socialFeed');if(!posts?.length){el.innerHTML='<div class="empty-state">No social posts yet...</div>';return;}
+  document.getElementById('feedCount').textContent=posts.length+' posts';
+  el.innerHTML=posts.map(p=>{const sc=p.score>0.15?'var(--green2)':p.score<-0.15?'var(--red2)':'var(--yellow2)';const t=new Date(p.timestamp);const likes=p.likes?`♥ ${p.likes}`:'';const rt=p.retweets?` · 🔁 ${p.retweets}`:'';return`<div class="social-item"><div class="news-head"><span class="news-ticker" style="color:var(--purple);">$${p.ticker}</span><span class="news-source">${p.platform}</span></div><div style="font-size:.83rem;line-height:1.4;">${escHtml(p.text)}</div><div style="font-size:.65rem;color:var(--text3);font-family:var(--mono);margin-top:.3rem;display:flex;gap:.6rem;">${t.toLocaleTimeString()}<span style="color:${sc};font-weight:600;">${fmt(p.score)}</span>${likes?`<span>${likes}${rt}</span>`:''}</div></div>`;}).join('');
+}
+
+function renderTickerTable(sectors){
+  const tbody=document.getElementById('tickerTableBody');const rows=[];
+  for(const s of sectors){for(const t of s.tickers){const trendIcon=t.trend==='up'?'▲':t.trend==='down'?'▼':'●';const trendColor=t.trend==='up'?'var(--green)':t.trend==='down'?'var(--red)':'var(--text3)';rows.push(`<tr><td><span class="ticker-sym" onclick="lookupTickerDirect('${t.ticker}')">${t.ticker}</span></td><td style="color:var(--text2);font-size:.82rem;">${s.sector}</td><td><span class="score-chip" style="background:${t.color}18;color:${t.color};">${fmt(t.score)}</span></td><td style="font-family:var(--mono);font-size:.82rem;color:${t.news_score>0?'var(--green2)':'var(--red2)'};">${fmt(t.news_score)}</td><td style="font-family:var(--mono);font-size:.82rem;color:${t.social_score>0?'var(--green2)':'var(--red2)'};">${fmt(t.social_score)}</td><td><div style="display:flex;align-items:center;gap:.4rem;"><div style="width:50px;height:5px;background:var(--border2);border-radius:3px;overflow:hidden;"><div style="width:${t.confidence}%;height:100%;background:var(--accent);border-radius:3px;"></div></div><span style="font-family:var(--mono);font-size:.72rem;color:var(--text3);">${t.confidence}%</span></div></td><td><span style="color:${trendColor};font-size:.8rem;font-weight:600;">${trendIcon} ${t.trend}</span></td></tr>`);}}
+  tbody.innerHTML=rows.join('');
+}
+
+async function lookupTicker(){const val=document.getElementById('tickerInput').value.trim().toUpperCase();if(!val)return;await lookupTickerDirect(val);}
+
+async function lookupTickerDirect(ticker){
+  document.getElementById('tickerInput').value=ticker;
+  try{const r=await fetch(API+'/api/ticker/'+ticker);const d=await r.json();if(!r.ok){showToast('Ticker not found: '+ticker);return;}renderTickerDetail(d);document.getElementById('tickerDetail').scrollIntoView({behavior:'smooth',block:'nearest'});}
+  catch(e){showToast('Error fetching ticker data');}
+}
+
+function renderTickerDetail(d){
+  const el=document.getElementById('tickerDetail');const recentNews=(d.recent_news||[]).slice(0,4);
+  el.className='ticker-detail-card visible';
+  el.innerHTML=`<div class="tdc-head"><div><div class="tdc-sym">$${d.ticker}</div><div class="tdc-sector">${d.sector}</div></div><div><div class="tdc-score" style="color:${d.color}">${fmt(d.score)}</div><div style="font-size:.72rem;color:var(--text3);text-align:right;">${d.label}</div></div></div><div class="tdc-meta"><div class="tdc-meta-item"><div class="lbl">News Score</div><div class="val" style="color:${d.news_score>0?'var(--green)':'var(--red)'};">${fmt(d.news_score)}</div></div><div class="tdc-meta-item"><div class="lbl">Social Score</div><div class="val" style="color:${d.social_score>0?'var(--green)':'var(--red)'};">${fmt(d.social_score)}</div></div><div class="tdc-meta-item"><div class="lbl">News Articles</div><div class="val">${d.news_count}</div></div><div class="tdc-meta-item"><div class="lbl">Social Posts</div><div class="val">${d.social_count}</div></div><div class="tdc-meta-item"><div class="lbl">Confidence</div><div class="val">${d.confidence}%</div></div><div class="tdc-meta-item"><div class="lbl">Trend</div><div class="val">${d.trend==='up'?'▲ Up':d.trend==='down'?'▼ Down':'● Stable'}</div></div></div>${recentNews.length?`<div class="tdc-news"><div class="tdc-news-title">Recent News</div>${recentNews.map(n=>`<div class="tdc-news-item"><span style="font-family:var(--mono);font-size:.65rem;color:var(--text3);">[${n.source||n.platform}]</span> ${n.headline||n.text}</div>`).join('')}</div>`:''}`;
+}
+
+function filterTicker(sector){document.getElementById('tickerTableBody').scrollIntoView({behavior:'smooth',block:'start'});}
+
+// ── CHAT ────────────────────────────────────────────────────────────────────
+function sendSuggestion(btn){document.getElementById('chatInput').value=btn.textContent;sendChat();}
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');const btn=document.getElementById('chatSendBtn');const msg=input.value.trim();if(!msg)return;
+  input.value='';btn.disabled=true;
+  appendMessage('user',msg);chatHistory.push({role:'user',content:msg});
+  const typingId=appendTyping();
+  try{
+    const r=await fetch(API+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history:chatHistory.slice(-6)})});
+    const d=await r.json();removeTyping(typingId);
+    const reply=d.reply||'Sorry, I encountered an error.';const tier=d.tier||'tier1';
+    appendMessage('ai',reply,tier,msg);
+    chatHistory.push({role:'assistant',content:reply});
+    if(chatHistory.length>20)chatHistory=chatHistory.slice(-20);
+  }catch(e){removeTyping(typingId);appendMessage('ai','⚠️ Connection error. Please ensure the backend is running.','tier1');}
+  btn.disabled=false;
+}
+
+function appendMessage(role,text,tier,originalQuery){
+  if(role==='user'){const wb=document.getElementById('chatWelcome');if(wb){wb.style.transition='opacity .3s';wb.style.opacity='0';setTimeout(()=>wb.style.display='none',300);}}
+  const container=document.getElementById('chatMessages');const div=document.createElement('div');div.className=`chat-msg msg-${role}`;
+  const tierTagMap={tier1:'<span class="msg-tier tier1-tag">✓ In-Scope</span>',tier2:'<span class="msg-tier tier2-tag">→ Redirected</span>',tier3:'<span class="msg-tier tier3-tag">✗ Guardrail</span>',demo:'<span class="msg-tier tier1-tag">Demo</span>'};
+  const tierTag=role==='ai'&&tier?(tierTagMap[tier]||''):'';
+  // View Live Context: ONLY for tier1 — uses data-query to avoid quote-escaping issues
+  // PDF download: for all AI responses
+  const ctxBtn=(role==='ai' && tier==='tier1' && originalQuery)
+    ? `<button class="ctx-open-btn ctx-trigger" data-query="${(originalQuery||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">📊 View Live Context</button>`
+    : '';
+  const pdfBtn=(role==='ai')
+    ? `<button class="pdf-dl-btn" onclick="downloadChatPDF()">⬇ Download PDF</button>`
+    : '';
+  const roleLabel=role==='user'?'You':'MarketPulse AI';
+  const footer=(tierTag||ctxBtn||pdfBtn)?`<div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-top:.25rem;">${tierTag}${ctxBtn}${pdfBtn||''}</div>`:'';
+  div.innerHTML=`<div class="msg-role">${roleLabel}</div><div class="msg-bubble">${escHtml(text)}</div>${footer}`;
+  container.appendChild(div);container.scrollTop=container.scrollHeight;
+}
+
+function appendTyping(){const container=document.getElementById('chatMessages');const id='typing_'+Date.now();const div=document.createElement('div');div.id=id;div.className='chat-msg msg-ai';div.innerHTML=`<div class="msg-role">MarketPulse AI</div><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;container.appendChild(div);container.scrollTop=container.scrollHeight;return id;}
+function removeTyping(id){const el=document.getElementById(id);if(el)el.remove();}
+function clearChat(){chatHistory=[];document.getElementById('chatMessages').innerHTML=`<div class="chat-msg msg-ai"><div class="msg-role">MarketPulse AI</div><div class="msg-bubble">Chat cleared. How can I help with market sentiment analysis?</div></div>`;}
+
+// ═══════════════════════════════════════════════════════════════════════
+// MARKET CONTEXT POPUP — Full redesign matching reference image
+// ═══════════════════════════════════════════════════════════════════════
+
+function switchCtxTab(tab){
+  document.querySelectorAll('.ctx-content-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ctx-panel').forEach(p=>p.classList.remove('active'));
+  // Tab button IDs: ctxTabAI, ctxTabHeat, ctxTabAnalysis
+  const tabIdMap={ai:'ctxTabAI', heat:'ctxTabHeat', analysis:'ctxTabAnalysis'};
+  const panelMap={ai:'ctxPanelAI', heat:'ctxPanelHeat', analysis:'ctxPanelAnalysis'};
+  const tabEl = document.getElementById(tabIdMap[tab]);
+  const panelEl = document.getElementById(panelMap[tab]);
+  if(tabEl) tabEl.classList.add('active');
+  if(panelEl) panelEl.classList.add('active');
+  if(tab==='ai' && _ctxCurrentData) setTimeout(()=>renderCtxCharts(_ctxCurrentData),100);
+}
+
+async function openCtxPopup(query){
+  if(!query || !query.trim()){ console.warn('openCtxPopup: empty query'); return; }
+  console.log('Opening context popup for:', query);
+
+  // Show overlay + popup immediately with loading state
+  const overlay = document.getElementById('ctxOverlay');
+  const popup   = document.getElementById('ctxPopup');
+  const content = document.getElementById('ctxContent');
+
+  if(!overlay || !popup || !content){
+    console.error('Popup elements missing from DOM');
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="ctx-header">
+      <div class="ctx-title">&#128202; Loading context...</div>
+      <button class="ctx-close" onclick="closeContextPopup()">&#x2715; Close</button>
+    </div>
+    <div style="padding:2rem;text-align:center;color:var(--text3);font-family:var(--mono);font-size:.85rem;">
+      Fetching live data for: <b style="color:var(--accent2);">${escHtml(query)}</b>
+      <div style="margin-top:.8rem;">&#9679;&#9679;&#9679;</div>
+    </div>`;
+
+  overlay.style.display = 'block';
+  popup.style.display   = 'block';
+  popup.scrollTop = 0;
+
+  try{
+    const r = await fetch(API+'/api/query-context?q='+encodeURIComponent(query));
+    if(!r.ok){
+      content.innerHTML = `<div class="ctx-header"><div class="ctx-title">Error</div><button class="ctx-close" onclick="closeContextPopup()">&#x2715; Close</button></div><div style="padding:2rem;color:var(--red2);">API error ${r.status}</div>`;
+      return;
+    }
+    const d = await r.json();
+    console.log('Context data:', d);
+    renderContextPopup(d, query);
+    popup.scrollTop = 0;
+  }catch(e){
+    console.error('Context popup fetch error:', e);
+    content.innerHTML = `<div class="ctx-header"><div class="ctx-title">Connection Error</div><button class="ctx-close" onclick="closeContextPopup()">&#x2715; Close</button></div><div style="padding:2rem;color:var(--red2);">Could not reach backend: ${e.message}</div>`;
+  }
+}
+
+function _buildFallbackCtxData(query){
+  // Build context from live dashData when API is unavailable
+  // Mirrors the comprehensive KEYWORD_MAP logic from main.py
+  if(!dashData) return null;
+  const q = query.toLowerCase();
+
+  // ── Comprehensive keyword → ticker map (mirrors main.py) ──────────────
+  const kwMap = {
+    // Precious metals
+    'gold':['GOLD','GLD','GDX','NEM','WPM'], 'silver':['SILVER','SLV'],
+    'platinum':['PLATINUM'], 'palladium':['PALLADIUM'], 'copper':['COPPER'],
+    'metals':['GOLD','SILVER','PLATINUM','COPPER','GLD','SLV','GDX'],
+    // Global tech
+    'tech':['AAPL','MSFT','NVDA','GOOGL','META','AMD'],
+    'technology':['AAPL','MSFT','NVDA','GOOGL','META','AMD'],
+    'apple':['AAPL'],'microsoft':['MSFT'],'nvidia':['NVDA'],
+    'google':['GOOGL'],'meta':['META'],'tesla':['TSLA'],'amazon':['AMZN'],
+    // Indian IT
+    'tcs':['TCS','WIPRO','INFY'], 'infosys':['INFY','TCS','WIPRO'],
+    'wipro':['WIPRO','TCS','INFY'], 'infy':['INFY','TCS','WIPRO'],
+    'hcl':['HCL','TECHM','TCS'], 'indian it':['TCS','INFY','WIPRO','HCL','TECHM'],
+    // Indian indices
+    'nifty':['TCS','INFY','WIPRO','RELIANCE','HDFC','ICICI','MARUTI','TATAMOTORS','NTPC','BHARTIARTL'],
+    'nifty 50':['TCS','INFY','WIPRO','RELIANCE','HDFC','ICICI','MARUTI','TATAMOTORS','NTPC','BHARTIARTL'],
+    'nifty50':['TCS','INFY','WIPRO','RELIANCE','HDFC','ICICI','MARUTI','TATAMOTORS','NTPC','BHARTIARTL'],
+    'sensex':['TCS','INFY','WIPRO','RELIANCE','HDFC','ICICI','MARUTI','TATAMOTORS','NTPC','BHARTIARTL'],
+    'bse':['TCS','INFY','WIPRO','RELIANCE','HDFC','ICICI'],
+    'nse':['TCS','INFY','WIPRO','RELIANCE','HDFC','ICICI','NTPC','BHARTIARTL'],
+    'indian market':['TCS','INFY','WIPRO','RELIANCE','HDFC','ICICI','MARUTI','TATAMOTORS'],
+    // Indian financials
+    'hdfc':['HDFC','ICICI','SBI','KOTAK','AXISBANK'],
+    'icici':['ICICI','HDFC','SBI','KOTAK'],
+    'sbi':['SBI','HDFC','ICICI','KOTAK'],
+    // Indian auto
+    'maruti':['MARUTI','TATAMOTORS','BAJAJ-AUTO','M&M'],
+    'tatamotors':['TATAMOTORS','MARUTI','BAJAJ-AUTO','M&M'],
+    'auto':['MARUTI','TATAMOTORS','BAJAJ-AUTO','M&M','HEROMOTOCO'],
+    'automobile':['MARUTI','TATAMOTORS','BAJAJ-AUTO','M&M','HEROMOTOCO'],
+    // Indian energy/refinery
+    'reliance':['RELIANCE','IOC','BPCL','HPCL'],
+    'refinery':['RELIANCE','IOC','BPCL','HPCL','MRPL'],
+    'refineries':['RELIANCE','IOC','BPCL','HPCL','MRPL'],
+    // Indian power
+    'ntpc':['NTPC','POWERGRID','ADANIPOWER','TATAPOWER'],
+    'power':['NTPC','POWERGRID','ADANIPOWER','TATAPOWER','CESC','NHPC'],
+    // Indian telecom
+    'airtel':['BHARTIARTL','IDEA','TATACOMM'],
+    'telecom':['BHARTIARTL','IDEA','TATACOMM','INDUS'],
+    // Indian logistics
+    'logistics':['BLUEDART','DELHIVERY','CONCOR','GATI','TCI'],
+    // Indian pharma
+    'cipla':['CIPLA','SUNPHARMA','DRREDDY'],
+    'sunpharma':['SUNPHARMA','CIPLA','DRREDDY'],
+    // Crypto
+    'bitcoin':['BTC','COIN','MSTR'], 'crypto':['BTC','ETH','SOL','COIN'],
+    'ethereum':['ETH'], 'solana':['SOL'],
+    // Global energy/finance
+    'energy':['XOM','CVX','BP','NEE','OXY'], 'oil':['XOM','CVX','BP'],
+    'banks':['JPM','GS','BAC','MS'], 'finance':['JPM','GS','BAC','V','MA'],
+    'pharma':['JNJ','PFE','ABBV','LLY'], 'healthcare':['JNJ','PFE','UNH','MRNA'],
+    'inflation':['GOLD','GLD','SLV','XOM','CVX'],
+  };
+
+  // ── Sector keyword map ────────────────────────────────────────────────
+  const sectorMap = {
+    'tech':'Technology','technology':'Technology','it sector':'Technology',
+    'energy':'Energy','oil':'Energy','financial':'Financials','finance':'Financials',
+    'bank':'Financials','health':'Healthcare','pharma':'Healthcare',
+    'consumer':'Consumer','crypto':'Crypto','bitcoin':'Crypto',
+    'metal':'Metals & Commodities','gold':'Metals & Commodities',
+    'silver':'Metals & Commodities','commodity':'Metals & Commodities',
+    'mining':'Mining','auto':'Automobile','automobile':'Automobile','car':'Automobile',
+    'education':'Education','alcohol':'Alcohol & Tobacco','tobacco':'Alcohol & Tobacco',
+    'refinery':'Refineries','refineries':'Refineries',
+    'telecom':'Telecom & Infra','infra':'Telecom & Infra',
+    'logistics':'Logistics','power':'Power','water':'Water & Utilities',
+    'utilities':'Water & Utilities',
+  };
+
+  // ── Build all tickers lookup from dashData ────────────────────────────
+  const allTickersFlat = dashData.sectors?.flatMap(s=>
+    s.tickers.map(t=>({...t, sectorName:s.sector, hex:s.hex}))
+  )||[];
+
+  const tickerLookup = {};
+  allTickersFlat.forEach(t=>{ tickerLookup[t.ticker] = t; });
+
+  // ── Match tickers from query ──────────────────────────────────────────
+  const matchedTickerKeys = new Set();
+  const matchedSectorNames = new Set();
+
+  // Keyword map matching
+  for(const [kw, tickers] of Object.entries(kwMap)){
+    if(q.includes(kw)) tickers.forEach(t=>matchedTickerKeys.add(t));
+  }
+
+  // Sector map matching
+  for(const [kw, sec] of Object.entries(sectorMap)){
+    if(q.includes(kw)) matchedSectorNames.add(sec);
+  }
+
+  // Direct ticker symbol match
+  allTickersFlat.forEach(t=>{
+    if(q.includes(t.ticker.toLowerCase()) || q.includes('$'+t.ticker.toLowerCase()))
+      matchedTickerKeys.add(t.ticker);
+  });
+
+  // Nifty/Sensex → all Indian sectors
+  const indianKws = ['nifty','sensex','nse','bse','indian market','dalal street'];
+  if(indianKws.some(k=>q.includes(k))){
+    ['Automobile','Refineries','Telecom & Infra','Power','Mining','Logistics',
+     'Water & Utilities','Technology','Financials','Healthcare','Consumer',
+     'Metals & Commodities','Energy','Alcohol & Tobacco','Education'].forEach(s=>matchedSectorNames.add(s));
+    dashData.sectors?.forEach(s=>s.tickers.slice(0,2).forEach(t=>matchedTickerKeys.add(t.ticker)));
+  }
+
+  // General market query → top movers
+  const generalKws = ['market','overall','summary','today','sentiment','overview','pulse','snapshot','bullish','bearish','divergence','alert'];
+  if(generalKws.some(k=>q.includes(k)) && matchedTickerKeys.size===0){
+    const sorted = [...allTickersFlat].sort((a,b)=>b.score-a.score);
+    sorted.slice(0,5).forEach(t=>matchedTickerKeys.add(t.ticker));
+    sorted.slice(-3).forEach(t=>matchedTickerKeys.add(t.ticker));
+    dashData.sectors?.forEach(s=>matchedSectorNames.add(s.sector));
+  }
+
+  // Final fallback → top 6 by score
+  if(matchedTickerKeys.size===0){
+    const sorted = [...allTickersFlat].sort((a,b)=>b.score-a.score);
+    sorted.slice(0,6).forEach(t=>matchedTickerKeys.add(t.ticker));
+  }
+
+  // ── Build result arrays ───────────────────────────────────────────────
+  const matchedTickers = [...matchedTickerKeys]
+    .filter(k=>tickerLookup[k])
+    .map(k=>{
+      const t = tickerLookup[k];
+      return {
+        ticker:t.ticker, name:t.ticker, sector:t.sectorName||'Unknown',
+        score:t.score, label:t.label, color:t.color,
+        trend:t.trend, news_score:t.news_score, social_score:t.social_score,
+        news_count:t.news_count, social_count:t.social_count, confidence:t.confidence
+      };
+    })
+    .sort((a,b)=>b.score-a.score);
+
+  const matchedSectors = [...matchedSectorNames]
+    .map(name=>{
+      const sec = dashData.sectors?.find(s=>s.sector===name);
+      if(!sec) return null;
+      return {sector:sec.sector,score:sec.score,label:sec.label,color:sec.color,hex:sec.hex};
+    })
+    .filter(Boolean);
+
+  // Filter news to matched tickers, fallback to latest 8
+  const relNews = (dashData.news_feed||[])
+    .filter(n=>matchedTickerKeys.has(n.ticker))
+    .slice(-10).reverse();
+
+  return {
+    tickers: matchedTickers,
+    sectors: matchedSectors,
+    news: relNews.length ? relNews : (dashData.news_feed||[]).slice(0,8),
+    social: [],
+    matched_on: [...matchedTickerKeys, ...matchedSectorNames],
+    timestamp: new Date().toISOString()
+  };
+}
+
+function closeContextPopup(){
+  document.getElementById('ctxOverlay').style.display = 'none';
+  document.getElementById('ctxPopup').style.display   = 'none';
+  if(_ctxBarChart){_ctxBarChart.destroy();_ctxBarChart=null;}
+  if(_ctxDivChart){_ctxDivChart.destroy();_ctxDivChart=null;}
+}
+// Alias for backwards compat
+function closeCtxPopup(){ closeContextPopup(); }
+
+function buildCtxPopup(d, query){
+  // Build sector tabs
+  const sectorBar=document.getElementById('ctxSectorBar');
+  const sectorColors={'Technology':'#6366f1','Energy':'#f59e0b','Financials':'#10b981',
+    'Healthcare':'#06b6d4','Consumer':'#f43f5e','Crypto':'#a855f7','Metals & Commodities':'#eab308',
+    'Automobile':'#3b82f6','Education':'#8b5cf6','Mining':'#78716c','Alcohol & Tobacco':'#dc2626',
+    'Refineries':'#ea580c','Telecom & Infra':'#0891b2','Logistics':'#059669','Power':'#d97706','Water & Utilities':'#0284c7'};
+
+  let sectorTabHTML=`<span class="ctx-sector-label">SECTOR</span>`;
+  const matchedSectors=d.sectors?.length?d.sectors.map(s=>s.sector):['Market'];
+  const allSectors=dashData?dashData.sectors.map(s=>s.sector):matchedSectors;
+
+  allSectors.slice(0,10).forEach((sec,i)=>{
+    const col=sectorColors[sec]||'#6366f1';
+    const isActive=i===0||(matchedSectors.includes(sec));
+    sectorTabHTML+=`<div class="ctx-sec-tab ${isActive?'active':''}" onclick="switchCtxSector('${sec}',this)" style="${isActive?`border-color:${col};color:${col};`:''}">
+      <span class="tab-dot" style="background:${col};"></span>${sec}
+    </div>`;
+  });
+  sectorBar.innerHTML=sectorTabHTML;
+
+  // Fill all panels with data FIRST, then switch to analysis tab
+  fillAnalysisPanel(d, query);
+  fillHeatmap(d);
+  fillTickerBar(d);
+
+  // Now switch tab (data already populated)
+  switchCtxTab('analysis');
+
+  // Draw charts after DOM is painted
+  setTimeout(()=>renderCtxCharts(d), 150);
+}
+
+function fillAnalysisPanel(d, query){
+  // Guard: if no data at all, show placeholder
+  if(!d){ return; }
+
+  // Compute aggregated stats
+  const tickers=d.tickers||[];
+  const scores=tickers.map(t=>t.score||0).filter(s=>!isNaN(s));
+  const avgScore=scores.length?scores.reduce((a,b)=>a+b,0)/scores.length:0;
+  const normScore=Math.max(0,Math.min(1,(avgScore+1)/2));
+
+  // Title and meta — use query as title if no ticker match
+  const mainTitle=tickers.length===1?tickers[0].ticker
+    :(d.sectors?.length?d.sectors[0].sector
+    :(query?.substring(0,20)||'Market Overview'));
+  document.getElementById('ctxIdxTitle').textContent=mainTitle;
+  document.getElementById('ctxIdxTag').textContent=tickers.length===1?'TICKER ANALYSIS':'MARKET OVERVIEW';
+  document.getElementById('ctxIdxSub').textContent=query.toLowerCase().replace(/[^a-z0-9\s]/g,'').trim()+' · today';
+
+  // Sentiment badge
+  const badgeEl=document.getElementById('ctxSentBadge');
+  if(avgScore>=0.6){badgeEl.textContent='Highly Positive';badgeEl.className='ctx-sentiment-badge positive';}
+  else if(avgScore>=0.2){badgeEl.textContent='Neutral-Positive';badgeEl.className='ctx-sentiment-badge';}
+  else if(avgScore>=-0.2){badgeEl.textContent='Neutral';badgeEl.className='ctx-sentiment-badge';}
+  else if(avgScore>=-0.6){badgeEl.textContent='Neutral-Negative';badgeEl.className='ctx-sentiment-badge negative';}
+  else{badgeEl.textContent='Highly Negative';badgeEl.className='ctx-sentiment-badge negative';}
+
+  // Slider
+  const pct=Math.max(2,Math.min(98,normScore*100));
+  document.getElementById('ctxSliderThumb').style.left=pct+'%';
+  document.getElementById('ctxSliderScore').textContent=normScore.toFixed(3)+' / 1.000';
+
+  // Trend
+  const trends=tickers.map(t=>t.trend);
+  const upCount=trends.filter(t=>t==='up').length;
+  const downCount=trends.filter(t=>t==='down').length;
+  const trendEl=document.getElementById('ctxTrendTitle');
+  const trendIcon=document.getElementById('ctxTrendIcon');
+  const trendDetail=document.getElementById('ctxTrendDetail');
+  if(upCount>downCount&&avgScore>0.1){
+    trendEl.textContent='CAUTIOUSLY IMPROVING';trendIcon.textContent='📈';trendEl.style.color='#10b981';
+    trendDetail.textContent=`${upCount} of ${tickers.length} tickers trending up · avg sentiment ${fmt(avgScore)}`;
+  }else if(downCount>upCount&&avgScore<-0.1){
+    trendEl.textContent='DECLINING';trendIcon.textContent='📉';trendEl.style.color='#ef4444';
+    trendDetail.textContent=`${downCount} of ${tickers.length} tickers trending down · avg sentiment ${fmt(avgScore)}`;
+  }else{
+    trendEl.textContent='STABLE';trendIcon.textContent='➡️';trendEl.style.color='#f59e0b';
+    trendDetail.textContent=`Market in consolidation phase · avg sentiment ${fmt(avgScore)}`;
+  }
+
+  // Signal percentages
+  const posT=tickers.filter(t=>t.score>=0.2).length;
+  const neuT=tickers.filter(t=>t.score>-0.2&&t.score<0.2).length;
+  const negT=tickers.filter(t=>t.score<=-0.2).length;
+  const total=Math.max(1,tickers.length);
+  const posPct=Math.round(posT/total*100);
+  const neuPct=Math.round(neuT/total*100);
+  const negPct=Math.round(negT/total*100);
+
+  document.getElementById('ctxPosP').textContent=posPct+'%';
+  document.getElementById('ctxNeuP').textContent=neuPct+'%';
+  document.getElementById('ctxNegP').textContent=negPct+'%';
+  document.getElementById('ctxPosFill').style.width=posPct+'%';
+  document.getElementById('ctxNeuFill').style.width=neuPct+'%';
+  document.getElementById('ctxNegFill').style.width=negPct+'%';
+
+  // Positive bullets — top positive tickers
+  const posTickets=tickers.filter(t=>t.score>=0.2).sort((a,b)=>b.score-a.score).slice(0,2);
+  document.getElementById('ctxPosBullets').innerHTML=posTickets.map(t=>
+    `<li><b>${t.ticker}</b> — ${t.label} <span>[Conf: ${t.confidence}%]</span></li>`
+  ).join('')||'<li>No strong positive signals</li>';
+
+  // Neutral bullets — recent news
+  const neuNews=(d.news||[]).slice(0,1);
+  document.getElementById('ctxNeuBullets').innerHTML=neuNews.map(n=>
+    `<li><b>${n.ticker||'Market'}</b> — ${(n.headline||n.text||'').substring(0,55)}…</li>`
+  ).join('')||'<li>Q3 earnings — broadly in-line with expectations</li>';
+
+  // Negative bullets — top negative tickers / divergence
+  const negTickets=tickers.filter(t=>t.score<=-0.2).sort((a,b)=>a.score-b.score).slice(0,2);
+  const divAlerts=tickers.filter(t=>Math.abs(t.news_score-t.social_score)>=0.3).slice(0,1);
+  let negBullets=negTickets.map(t=>`<li><b>${t.ticker}</b> — ${t.label} <span>[Δ news/social ${Math.abs(t.news_score-t.social_score).toFixed(2)}]</span></li>`);
+  if(divAlerts.length)negBullets.push(`<li><b>Divergence Alert</b> <span>[High]</span> — ${divAlerts[0].ticker} news vs social gap</li>`);
+  document.getElementById('ctxNegBullets').innerHTML=negBullets.join('')||'<li>No significant negative signals</li>';
+}
+
+function fillHeatmap(d){
+  const grid=document.getElementById('ctxHeatGrid');
+  const tickers=d.tickers||[];
+  if(!tickers.length){grid.innerHTML='<div class="empty-state">No ticker data</div>';return;}
+  grid.innerHTML=tickers.map(t=>{
+    const alpha=Math.min(0.9,0.15+Math.abs(t.score)*0.75);
+    const bg=t.score>=0.2?`rgba(16,185,129,${alpha})`:t.score<=-0.2?`rgba(239,68,68,${alpha})`:`rgba(245,158,11,${alpha})`;
+    const textCol=t.score>=0.2?'#10b981':t.score<=-0.2?'#ef4444':'#f59e0b';
+    return`<div class="ctx-heat-cell" style="background:${bg};border:1px solid ${textCol}40;" onclick="lookupTickerDirect('${t.ticker}');closeCtxPopup();">
+      <div class="ctx-heat-sym" style="color:${textCol};">${t.ticker}</div>
+      <div class="ctx-heat-score" style="color:${textCol};">${fmt(t.score)}</div>
+      <div style="font-size:.6rem;color:rgba(255,255,255,0.5);margin-top:.2rem;">${t.trend==='up'?'▲':t.trend==='down'?'▼':'●'} ${t.confidence}%</div>
+    </div>`;
+  }).join('');
+}
+
+function fillTickerBar(d){
+  const bar=document.getElementById('ctxTickerBar');
+  const tickers=[...(d.tickers||[])];
+  if(!tickers.length&&dashData){
+    dashData.top_bullish?.forEach(t=>tickers.push({ticker:t.ticker,score:t.score,trend:'up'}));
+    dashData.top_bearish?.slice(0,3).forEach(t=>tickers.push({ticker:t.ticker,score:t.score,trend:'down'}));
+  }
+  bar.innerHTML=tickers.map(t=>{
+    const col=t.score>=0.2?'#10b981':t.score<=-0.2?'#ef4444':'#94a3b8';
+    const arrow=t.trend==='up'?'▲':t.trend==='down'?'▼':'●';
+    return`<div class="ctx-tick-item"><span class="ctx-tick-sym">${t.ticker}</span><span class="ctx-tick-arrow" style="color:${col}">${arrow}</span><span class="ctx-tick-score" style="color:${col}">${fmt(t.score)}</span></div>`;
+  }).join('');
+  // Add timestamp
+  bar.innerHTML+=`<div class="ctx-tick-item" style="margin-left:auto;color:#475569;font-size:.65rem;">${new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})} IST</div>`;
+}
+
+function renderCtxCharts(d){
+  const tickers=d.tickers||[];if(!tickers.length)return;
+  const labels=tickers.map(t=>t.ticker);
+  const colors=tickers.map(t=>t.score>=0.2?'rgba(16,185,129,0.8)':t.score<=-0.2?'rgba(239,68,68,0.8)':'rgba(245,158,11,0.8)');
+
+  // Bar chart
+  const bCanvas=document.getElementById('ctxBarCanvas');
+  if(!bCanvas)return;
+  if(_ctxBarChart){_ctxBarChart.destroy();_ctxBarChart=null;}
+  _ctxBarChart=new Chart(bCanvas.getContext('2d'),{type:'bar',data:{labels,datasets:[{label:'Composite',data:tickers.map(t=>t.score),backgroundColor:colors,borderRadius:6,borderColor:colors.map(c=>c.replace('0.8','1')),borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{min:-1,max:1,ticks:{color:'#64748b',font:{family:'JetBrains Mono',size:9}},grid:{color:'rgba(255,255,255,0.04)'},border:{dash:[4,4]}}}}});
+
+  // Divergence chart
+  const dCanvas=document.getElementById('ctxDivCanvas');
+  if(!dCanvas)return;
+  if(_ctxDivChart){_ctxDivChart.destroy();_ctxDivChart=null;}
+  _ctxDivChart=new Chart(dCanvas.getContext('2d'),{type:'bar',data:{labels,datasets:[{label:'News',data:tickers.map(t=>t.news_score),backgroundColor:'rgba(99,102,241,0.7)',borderRadius:4},{label:'Social',data:tickers.map(t=>t.social_score),backgroundColor:'rgba(168,85,247,0.7)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{labels:{color:'#94a3b8',font:{size:10}}}},scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'rgba(255,255,255,0.04)'}},y:{min:-1,max:1,ticks:{color:'#64748b',font:{family:'JetBrains Mono',size:9}},grid:{color:'rgba(255,255,255,0.04)'}}}}});
+}
+
+function switchCtxSector(sector, el){
+  document.querySelectorAll('.ctx-sec-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  // Filter popup data for this sector
+  if(!dashData)return;
+  const secData=dashData.sectors.find(s=>s.sector===sector);
+  if(!secData)return;
+  const fakeCtxData={tickers:secData.tickers,sectors:[{sector:secData.sector,score:secData.score,label:secData.label,color:secData.color,hex:secData.hex}],news:dashData.news_feed?.filter(n=>secData.tickers.some(t=>t.ticker===n.ticker))||[]};
+  _ctxCurrentData=fakeCtxData;
+  fillAnalysisPanel(fakeCtxData,sector+' sector');
+  fillHeatmap(fakeCtxData);
+  fillTickerBar(fakeCtxData);
+  if(document.getElementById('ctxPanelAI').classList.contains('active'))renderCtxCharts(fakeCtxData);
+}
+
+async function testLLM(){
+  const btn=document.querySelector('.chat-test-btn');btn.textContent='⏳';btn.disabled=true;
+  const msgs=document.getElementById('chatMessages');
+  try{const r=await fetch(API+'/api/test-llm');const d=await r.json();const ok=d.ok;const cls=ok?'llm-ok':'llm-fail';const icon=ok?'✅':'❌';let html=`<div class="llm-status ${cls}"><b>${icon} LLM Connection Test</b><br/>Base URL: <b>${d.base_url}</b><br/>API Key: <b>${d.api_key}</b><br/>`;for(const[name,res]of Object.entries(d.models||{})){html+=`${res.status} ${name}: <b>${res.model}</b>`;if(res.reply)html+=` → "${res.reply}"`;if(res.error)html+=`<br/><span style="color:var(--red2);font-size:.7rem;">${res.error}</span>`;html+='<br/>';}if(!ok)html+=`<br/>💡 ${d.fix_hint}`;html+=`</div>`;const div=document.createElement('div');div.className='chat-msg msg-ai';div.innerHTML=`<div class="msg-role">System Diagnostic</div>${html}`;msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;}catch(e){appendMessage('ai','❌ Could not reach backend. Is python main.py running?','tier1');}
+  btn.textContent='🔌';btn.disabled=false;
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function fmt(n){if(n==null)return'—';return(n>=0?'+':'')+Number(n).toFixed(3);}
+function sentimentClass(score){if(score>=0.2)return'badge-green';if(score<=-0.2)return'badge-red';return'badge-neutral';}
+function escHtml(t){if(!t)return'';return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');}
+function showToast(msg,dur=2500){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),dur);}
+
+// ═══════════════════════════════════════════════════════════════════════
+// LIVE TICKER SCROLLBAR — Nifty50, BankNifty, Sensex, MidCap, SmallCap
+// ═══════════════════════════════════════════════════════════════════════
+
+const LIVE_INDICES = [
+  { name: 'NIFTY 50',   id: 'nifty50'   },
+  { name: 'BANK NIFTY', id: 'banknifty' },
+  { name: 'SENSEX',     id: 'sensex'    },
+  { name: 'NIFTY MID',  id: 'midcap'   },
+  { name: 'NIFTY SMALL',id: 'smallcap'  },
+];
+
+// Simulated live index data (in production replace with yfinance/NSE API)
+const _indexBase = {
+  nifty50:   { base: 22350, change: +0.42, prev: 22256 },
+  banknifty: { base: 47820, change: +0.18, prev: 47734 },
+  sensex:    { base: 73680, change: +0.51, prev: 73306 },
+  midcap:    { base: 10425, change: -0.22, prev: 10448 },
+  smallcap:  { base:  6890, change: +0.09, prev:  6884 },
+};
+
+const _indexState = JSON.parse(JSON.stringify(_indexBase));
+
+function _randomWalk(base, volatility=0.008){
+  const delta = (Math.random()-0.5)*2*volatility;
+  return base*(1+delta);
+}
+
+function buildTickerHTML(){
+  let html = '';
+  const allItems = [];
+
+  // Indices
+  for(const idx of LIVE_INDICES){
+    const st = _indexState[idx.id];
+    const val = st.base.toFixed(2);
+    const chg = st.change;
+    const chgStr = (chg>=0?'+':'')+chg.toFixed(2)+'%';
+    const col = chg>=0?'#10b981':'#ef4444';
+    const arrow = chg>=0?'▲':'▼';
+    allItems.push(`<div class="tick-item"><span class="tick-name">${idx.name}</span><span class="tick-value" style="color:${col}">${Number(val).toLocaleString('en-IN')}</span><span class="tick-change" style="color:${col}">${arrow} ${chgStr}</span></div>`);
+  }
+
+  // Top tickers from live dashboard data
+  if(dashData && dashData.top_bullish){
+    dashData.top_bullish.slice(0,5).forEach(t=>{
+      const col='#10b981'; const arrow='▲';
+      allItems.push(`<div class="tick-item" onclick="lookupTickerDirect('${t.ticker}')"><span class="tick-name">$${t.ticker}</span><span class="tick-value" style="color:${col}">${fmt(t.score)}</span><span class="tick-change" style="color:${col}">${arrow} ${t.label}</span></div>`);
+    });
+    dashData.top_bearish?.slice(0,3).forEach(t=>{
+      const col='#ef4444'; const arrow='▼';
+      allItems.push(`<div class="tick-item" onclick="lookupTickerDirect('${t.ticker}')"><span class="tick-name">$${t.ticker}</span><span class="tick-value" style="color:${col}">${fmt(t.score)}</span><span class="tick-change" style="color:${col}">${arrow} ${t.label}</span></div>`);
+    });
+  }
+
+  // Duplicate for seamless loop
+  html = allItems.join('') + allItems.join('');
+  return html;
+}
+
+function updateLiveTicker(){
+  // Random walk all indices
+  for(const id in _indexState){
+    const st = _indexState[id];
+    const newVal = _randomWalk(st.base, 0.002);
+    const chg = ((newVal - st.prev) / st.prev)*100;
+    _indexState[id].base = newVal;
+    _indexState[id].change = chg;
+  }
+  const inner = document.getElementById('tickerScrollInner');
+  if(inner) inner.innerHTML = buildTickerHTML();
+}
+
+// Initialize and refresh every 5 seconds
+setTimeout(()=>{ updateLiveTicker(); setInterval(updateLiveTicker, 5000); }, 1500);
+
+// Also update when dashboard data refreshes
+const _origRenderDash = renderDashboard;
+renderDashboard = function(d){
+  _origRenderDash(d);
+  updateLiveTicker();
+};
+
+// Ticker is fixed top:62px, main-scroll has margin-top:38px via CSS
+// No additional JS needed for padding
+
+
+// ═══════════════════════════════════════════════════════════════════════
+// PDF DOWNLOAD — Chat Q&A with charts
+// ═══════════════════════════════════════════════════════════════════════
+
+function downloadChatPDF(){
+  // Build a printable HTML page
+  const messages = document.getElementById('chatMessages');
+  if(!messages || !messages.children.length){showToast('No chat to download');return;}
+
+  const msgNodes = Array.from(messages.querySelectorAll('.chat-msg'));
+  if(!msgNodes.length){showToast('No chat to download');return;}
+
+  let chatHTML = '';
+  msgNodes.forEach(node=>{
+    const role = node.classList.contains('msg-user')?'user':'ai';
+    const roleLabel = node.querySelector('.msg-role')?.textContent||'';
+    const bubble = node.querySelector('.msg-bubble')?.innerHTML||'';
+    const tierTag = node.querySelector('.msg-tier')?.textContent||'';
+
+    if(role==='user'){
+      chatHTML += `<div class="msg-block user-block">
+        <div class="msg-label">👤 ${roleLabel}</div>
+        <div class="msg-text user-text">${bubble}</div>
+      </div>`;
+    } else {
+      chatHTML += `<div class="msg-block ai-block">
+        <div class="msg-label">🤖 ${roleLabel} ${tierTag?`<span class="tier-tag">${tierTag}</span>`:''}</div>
+        <div class="msg-text ai-text">${bubble}</div>
+      </div>`;
+    }
+  });
+
+  // Get chart images
+  let chartsHTML = '';
+  const radarCanvas = document.getElementById('radarChart');
+  const barCanvas   = document.getElementById('barChart');
+  if(radarCanvas){
+    chartsHTML += `<div class="chart-block">
+      <div class="chart-label">Sector Radar Chart</div>
+      <img src="${radarCanvas.toDataURL()}" style="max-width:45%;margin-right:2%;"/>`;
+  }
+  if(barCanvas){
+    chartsHTML += `<img src="${barCanvas.toDataURL()}" style="max-width:45%;"/>
+    </div>`;
+  }
+
+  // Get popup charts if open
+  const ctxBar = document.getElementById('ctxBarCanvas');
+  const ctxDiv = document.getElementById('ctxDivCanvas');
+  if(ctxBar && _ctxCurrentData){
+    chartsHTML += `<div class="chart-block">
+      <div class="chart-label">Context: Sentiment Comparison</div>
+      <img src="${ctxBar.toDataURL()}" style="max-width:45%;margin-right:2%;"/>`;
+    if(ctxDiv) chartsHTML += `<img src="${ctxDiv.toDataURL()}" style="max-width:45%;"/>`;
+    chartsHTML += `</div>`;
+  }
+
+  // Sector summary table
+  let sectorTableHTML = '';
+  if(dashData && dashData.sectors){
+    sectorTableHTML = `<div class="section-title">📊 Live Sector Sentiment</div>
+    <table class="sector-table">
+      <thead><tr><th>Sector</th><th>Score</th><th>Label</th><th>Divergence</th></tr></thead>
+      <tbody>`;
+    dashData.sectors.forEach(s=>{
+      const col = s.score>=0.2?'#10b981':s.score<=-0.2?'#ef4444':'#f59e0b';
+      sectorTableHTML += `<tr>
+        <td>${s.sector}</td>
+        <td style="color:${col};font-weight:700;">${(s.score>=0?'+':'')+s.score.toFixed(3)}</td>
+        <td>${s.label}</td>
+        <td>${s.divergence?'⚠ Yes':'—'}</td>
+      </tr>`;
+    });
+    sectorTableHTML += `</tbody></table>`;
+  }
+
+  const now = new Date().toLocaleString('en-IN',{dateStyle:'full',timeStyle:'short'});
+
+  const printDoc = `<!DOCTYPE html><html><head>
+<meta charset="UTF-8"/>
+<title>MarketPulse AI — Chat Report</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;color:#1e293b;padding:32px;font-size:13px;line-height:1.6;}
+  .header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #6366f1;padding-bottom:16px;margin-bottom:24px;}
+  .header-title{font-size:22px;font-weight:800;color:#6366f1;}
+  .header-sub{font-size:11px;color:#64748b;margin-top:4px;}
+  .header-meta{text-align:right;font-size:11px;color:#64748b;}
+  .section-title{font-size:14px;font-weight:700;color:#1e293b;margin:20px 0 10px;padding:6px 10px;background:#f1f5f9;border-left:4px solid #6366f1;border-radius:0 6px 6px 0;}
+  .msg-block{margin-bottom:14px;padding:12px 16px;border-radius:10px;}
+  .user-block{background:#eff6ff;border-left:4px solid #6366f1;}
+  .ai-block{background:#f8fafc;border-left:4px solid #10b981;}
+  .msg-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+  .msg-text{font-size:12.5px;color:#1e293b;line-height:1.65;}
+  .user-text{color:#1e40af;}
+  .ai-text{color:#1e293b;}
+  .tier-tag{font-size:9px;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;border-radius:4px;padding:1px 6px;}
+  .chart-block{margin:16px 0;padding:14px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;}
+  .chart-label{font-size:11px;font-weight:700;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;}
+  .sector-table{width:100%;border-collapse:collapse;margin-top:8px;}
+  .sector-table th{background:#f1f5f9;padding:7px 10px;text-align:left;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;border-bottom:2px solid #e2e8f0;}
+  .sector-table td{padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;}
+  .sector-table tr:hover td{background:#f8fafc;}
+  .disclaimer{margin-top:28px;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:11px;color:#92400e;}
+  .footer{margin-top:20px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;text-align:center;}
+  @media print{body{padding:16px;}@page{margin:1cm;}}
+</style>
+</head><body>
+<div class="header">
+  <div>
+    <div class="header-title">📊 MarketPulse AI — Sentiment Report</div>
+    <div class="header-sub">Financial Market Sentiment Analysis · AI-Powered</div>
+  </div>
+  <div class="header-meta">Generated: ${now}<br/>MarketPulse AI v2.0</div>
+</div>
+${sectorTableHTML}
+<div class="section-title">💬 Chat History</div>
+${chatHTML}
+${chartsHTML?`<div class="section-title">📈 Market Charts</div>${chartsHTML}`:''}
+<div class="disclaimer">⚠️ This report is for informational purposes only and does not constitute financial advice. Always consult a certified financial advisor before making investment decisions.</div>
+<div class="footer">MarketPulse AI · Generated on ${now} · For informational purposes only</div>
+</body></html>`;
+
+  const win = window.open('','_blank','width=900,height=700');
+  win.document.write(printDoc);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 800);
+}
+
+
+// ── DELEGATED CLICK HANDLER for ctx-trigger buttons ──────────────────────────
+// Handles ALL "View Live Context" buttons regardless of when they are added to DOM
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.ctx-trigger');
+  if (btn) {
+    const query = btn.getAttribute('data-query');
+    if (query) openCtxPopup(decodeURIComponent(query.replace(/&quot;/g,'"').replace(/&#39;/g,"'")));
+  }
+});
+
+// ── RENDER CONTEXT POPUP — full content from old working code ────────────────
+function renderContextPopup(d, query) {
+  const tv = getThemeVars();
+
+  // ── Header ──────────────────────────────────────────────────────────────
+  let html = `
+    <div class="ctx-header">
+      <div>
+        <div class="ctx-title">📊 ${escHtml(query)}</div>
+        <div style="font-size:.72rem;color:#64748b;font-family:var(--mono);margin-top:.3rem;">
+          Live data &middot; ${new Date(d.timestamp).toLocaleTimeString()} &middot;
+          <span style="color:var(--accent2);">${d.tickers?.length||0} tickers</span> matched
+        </div>
+      </div>
+      <button class="ctx-close" onclick="closeContextPopup()">✕ Close</button>
+    </div>
+    <div class="ctx-body">`;
+
+  // ── Ticker cards ──────────────────────────────────────────────────────────
+  if (d.tickers?.length) {
+    html += `<div class="ctx-section">
+      <div class="ctx-section-title">📍 Matched Tickers — Live Sentiment</div>
+      <div class="ctx-ticker-grid">`;
+
+    for (const t of d.tickers) {
+      const barPct = Math.round(((t.score + 1) / 2) * 100);
+      const trendIcon  = t.trend==='up' ? '▲' : t.trend==='down' ? '▼' : '●';
+      const trendColor = t.trend==='up' ? '#10b981' : t.trend==='down' ? '#ef4444' : '#64748b';
+      const scoreColor = t.score >= 0.2 ? '#10b981' : t.score <= -0.2 ? '#ef4444' : '#f59e0b';
+      const newsBadgeColor = t.news_score >= 0 ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
+      const newsBadgeBorder = t.news_score >= 0 ? 'rgba(16,185,129,0.35)' : 'rgba(239,68,68,0.35)';
+      const newsBadgeText  = t.news_score >= 0 ? '#34d399' : '#f87171';
+      const socBadgeColor  = t.social_score >= 0 ? 'rgba(99,102,241,0.15)' : 'rgba(239,68,68,0.15)';
+      const socBadgeBorder = t.social_score >= 0 ? 'rgba(99,102,241,0.35)' : 'rgba(239,68,68,0.35)';
+      const socBadgeText   = t.social_score >= 0 ? '#818cf8' : '#f87171';
+
+      html += `<div class="ctx-ticker-card">
+        <div class="ctx-ticker-sym">$${t.ticker}</div>
+        <div class="ctx-ticker-name">${t.name !== t.ticker ? t.name : t.sector}</div>
+        <div class="ctx-ticker-score" style="color:${scoreColor}">${fmt(t.score)}</div>
+        <div class="ctx-ticker-label">${t.label}</div>
+        <div class="ctx-mini-bar">
+          <div class="ctx-mini-bar-fill" style="width:${barPct}%;background:${scoreColor};"></div>
+        </div>
+        <div class="ctx-ticker-meta">
+          <span style="background:${newsBadgeColor};border:1px solid ${newsBadgeBorder};color:${newsBadgeText};border-radius:6px;padding:.18rem .55rem;font-size:.65rem;font-family:var(--mono);font-weight:600;">
+            📰 ${fmt(t.news_score)}
+          </span>
+          <span style="background:${socBadgeColor};border:1px solid ${socBadgeBorder};color:${socBadgeText};border-radius:6px;padding:.18rem .55rem;font-size:.65rem;font-family:var(--mono);font-weight:600;">
+            💬 ${fmt(t.social_score)}
+          </span>
+        </div>
+        <div class="ctx-ticker-trend" style="color:${trendColor}">
+          <span>${trendIcon}</span>
+          <span style="font-size:.68rem;">${t.trend.toUpperCase()}</span>
+          <span style="color:#475569;font-size:.65rem;font-weight:400;">· Conf: ${t.confidence}%</span>
+        </div>
+        <div class="ctx-ticker-vol">${t.news_count} news · ${t.social_count} posts</div>
+      </div>`;
+    }
+    html += `</div></div>`;
+
+    // ── Comparison chart ────────────────────────────────────────────────────
+    html += `<div class="ctx-section">
+      <div class="ctx-section-title">📈 Sentiment Comparison (Composite · News · Social)</div>
+      <div class="ctx-chart-wrap"><canvas id="ctxBarCanvas"></canvas></div>
+    </div>`;
+  }
+
+  // ── Sector pills ────────────────────────────────────────────────────────
+  if (d.sectors?.length) {
+    html += `<div class="ctx-section">
+      <div class="ctx-section-title">🏢 Matched Sectors</div>
+      <div class="ctx-sector-pills">`;
+    for (const s of d.sectors) {
+      const sc = s.score >= 0.2 ? '#10b981' : s.score <= -0.2 ? '#ef4444' : '#f59e0b';
+      html += `<div class="ctx-sector-pill" style="border-color:${s.hex}44;">
+        <span class="ctx-sector-pill-dot" style="background:${s.hex};box-shadow:0 0 6px ${s.hex}66;"></span>
+        <span class="ctx-sector-pill-name">${s.sector}</span>
+        <span class="ctx-sector-pill-score" style="color:${sc}">${fmt(s.score)}</span>
+        <span class="ctx-sector-pill-label">${s.label}</span>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  // ── Related news ────────────────────────────────────────────────────────
+  if (d.news?.length) {
+    html += `<div class="ctx-section">
+      <div class="ctx-section-title">📰 Related News (${d.news.length} items)</div>
+      <div class="ctx-news-list">`;
+    for (const n of d.news.slice(0, 8)) {
+      const sc  = n.score > 0.15 ? '#10b981' : n.score < -0.15 ? '#ef4444' : '#f59e0b';
+      const blc = n.score > 0.15 ? '#10b981' : n.score < -0.15 ? '#ef4444' : '#f59e0b';
+      const ts  = new Date(n.timestamp);
+      html += `<div class="ctx-news-item" style="border-left-color:${blc}">
+        <div class="ctx-news-item-head">
+          <span class="ctx-news-ticker">$${n.ticker}</span>
+          <span class="ctx-news-meta">${n.source||''} · ${ts.toLocaleTimeString()}</span>
+        </div>
+        <div class="ctx-news-headline">${escHtml(n.headline||n.text||'')}</div>
+        <div class="ctx-news-footer">
+          <span class="ctx-news-score" style="color:${sc}">${fmt(n.score)}</span>
+          <span class="ctx-news-sentiment">${n.sentiment||''}</span>
+        </div>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  // ── Social media ─────────────────────────────────────────────────────────
+  if (d.social?.length) {
+    html += `<div class="ctx-section">
+      <div class="ctx-section-title">💬 Social Media Buzz (${d.social.length} posts)</div>
+      <div class="ctx-social-list">`;
+    for (const p of d.social.slice(0, 8)) {
+      const sc  = p.score > 0.15 ? '#10b981' : p.score < -0.15 ? '#ef4444' : '#f59e0b';
+      const blc = p.score > 0.15 ? '#10b981' : p.score < -0.15 ? '#ef4444' : '#a855f7';
+      const ts  = new Date(p.timestamp);
+      html += `<div class="ctx-social-item" style="border-left-color:${blc}">
+        <div class="ctx-social-text">${escHtml(p.text)}</div>
+        <div class="ctx-social-meta">
+          <span class="ctx-social-ticker">$${p.ticker}</span>
+          <span class="ctx-social-platform">${p.platform}</span>
+          <span style="color:${sc};font-weight:700;">${fmt(p.score)}</span>
+          ${p.likes ? `<span>♥ ${p.likes}</span>` : ''}
+          ${p.retweets ? `<span>🔁 ${p.retweets}</span>` : ''}
+          <span>${ts.toLocaleTimeString()}</span>
+        </div>
+      </div>`;
+    }
+    html += `</div></div>`;
+  }
+
+  html += `</div>`; // close ctx-body
+  document.getElementById('ctxContent').innerHTML = html;
+
+  // ── Draw chart ───────────────────────────────────────────────────────────
+  if (d.tickers?.length) {
+    setTimeout(() => {
+      const canvas = document.getElementById('ctxBarCanvas');
+      if (!canvas) return;
+      if (_ctxBarChart) { _ctxBarChart.destroy(); _ctxBarChart = null; }
+      _ctxBarChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: d.tickers.map(t => t.ticker),
+          datasets: [
+            {
+              label: 'Composite',
+              data: d.tickers.map(t => t.score),
+              backgroundColor: d.tickers.map(t => {
+                const s = t.score;
+                return s >= 0.2 ? 'rgba(16,185,129,0.75)' : s <= -0.2 ? 'rgba(239,68,68,0.75)' : 'rgba(245,158,11,0.75)';
+              }),
+              borderRadius: 5, borderWidth: 0,
+            },
+            {
+              label: 'News',
+              data: d.tickers.map(t => t.news_score),
+              backgroundColor: 'rgba(99,102,241,0.55)',
+              borderRadius: 4, borderWidth: 0,
+            },
+            {
+              label: 'Social',
+              data: d.tickers.map(t => t.social_score),
+              backgroundColor: 'rgba(168,85,247,0.55)',
+              borderRadius: 4, borderWidth: 0,
+            },
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          scales: {
+            x: {
+              ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 10 } },
+              grid: { color: 'rgba(255,255,255,0.04)' }
+            },
+            y: {
+              min: -1, max: 1,
+              ticks: { color: '#64748b', font: { family: 'JetBrains Mono', size: 9 } },
+              grid: { color: 'rgba(255,255,255,0.05)', dash: [4,4] }
+            }
+          },
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { size: 10 }, boxWidth: 12, padding: 14 } }
+          }
+        }
+      });
+    }, 80);
+  }
+}
+
+</script>
+
+<!-- ═══════════════ LIVE MARKET TICKER SCROLLBAR ═══════════════ -->
+<div class="live-ticker-wrap" id="liveTickerWrap" style="display:none;">
+  <div class="live-ticker-label"><span class="blink"></span>LIVE</div>
+  <div class="ticker-scroll-track">
+    <div class="ticker-scroll-inner" id="tickerScrollInner">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,399 @@
+{
+  "knowledge_base_version": "1.0",
+  "purpose": "AI-Powered Financial Market Sentiment Analysis Agent",
+  "last_updated": "2025-01-01",
+  "disclaimer": "This knowledge base is for informational purposes only and does not constitute financial advice.",
+
+  "agent_identity": {
+    "name": "MarketPulse AI",
+    "role": "Financial Sentiment Research Assistant",
+    "scope": "Market sentiment analysis, news summarization, sector/ticker trends",
+    "prohibited_scope": ["investment advice", "price predictions", "personal financial planning", "insider information"]
+  },
+
+  "sectors": [
+    {
+      "sector_id": "TECH",
+      "name": "Technology",
+      "description": "Software, hardware, semiconductors, cloud computing, AI companies",
+      "tickers": ["AAPL", "MSFT", "NVDA", "GOOGL", "META", "AMD", "INTC", "TSMC", "ORCL", "CRM"]
+    },
+    {
+      "sector_id": "ENERGY",
+      "name": "Energy",
+      "description": "Oil, gas, renewables, utilities",
+      "tickers": ["XOM", "CVX", "BP", "SHEL", "NEE", "ENPH", "FSLR", "SLB", "OXY", "COP"]
+    },
+    {
+      "sector_id": "FIN",
+      "name": "Financials",
+      "description": "Banks, insurance, fintech, asset managers",
+      "tickers": ["JPM", "GS", "BAC", "MS", "WFC", "BLK", "AXP", "V", "MA", "PYPL"]
+    },
+    {
+      "sector_id": "HEALTH",
+      "name": "Healthcare",
+      "description": "Pharma, biotech, medical devices, health insurers",
+      "tickers": ["JNJ", "PFE", "UNH", "MRNA", "ABBV", "LLY", "BMY", "AMGN", "GILD", "MDT"]
+    },
+    {
+      "sector_id": "CONS",
+      "name": "Consumer",
+      "description": "Retail, e-commerce, consumer goods, restaurants",
+      "tickers": ["AMZN", "TSLA", "WMT", "HD", "MCD", "NKE", "SBUX", "TGT", "COST", "PG"]
+    },
+    {
+      "sector_id": "CRYPTO",
+      "name": "Crypto & Digital Assets",
+      "description": "Cryptocurrencies, blockchain, digital asset exchanges",
+      "tickers": ["BTC", "ETH", "BNB", "SOL", "COIN", "MSTR", "RIOT", "MARA", "HUT", "BITF"]
+    }
+  ],
+
+  "sentiment_scoring": {
+    "scale": "-1.0 to +1.0",
+    "ranges": {
+      "highly_positive": "0.6 to 1.0",
+      "positive": "0.2 to 0.59",
+      "neutral": "-0.19 to 0.19",
+      "negative": "-0.59 to -0.2",
+      "highly_negative": "-1.0 to -0.6"
+    },
+    "sources_weighted": {
+      "reuters_bloomberg": 0.4,
+      "sec_filings": 0.3,
+      "social_media": 0.2,
+      "analyst_reports": 0.1
+    }
+  },
+
+  "domains": [
+    {
+      "domain_name": "sentiment_context_queries",
+      "description": "Queries asking why sentiment is changing for a specific ticker or sector",
+      "scenarios": [
+        {
+          "scenario_id": "SENT_CTX_1",
+          "customer_query_sample": "Why is the sentiment for $AAPL turning negative this afternoon?",
+          "extracted_intent": "ticker_sentiment_explanation",
+          "key_entities": ["AAPL", "Apple", "Tech", "negative sentiment"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "High",
+          "summary_for_agent": "User is asking for the causal drivers behind a sentiment shift for Apple Inc. ($AAPL). This is a valid in-scope research query.",
+          "sample_response": "Sentiment for $AAPL has declined to -0.34 (Negative) based on 38 Reuters/Bloomberg headlines and 312 social media posts in the last 4 hours. The top 3 drivers are: (1) Reports of iPhone 16 shipment delays from Foxconn suppliers, (2) Analyst downgrade by Morgan Stanley citing margin compression, (3) Increased negative chatter on FinTwit around weak App Store revenue guidance. Source: 22 Reuters articles, 16 Bloomberg reports, 312 tweets tagged #AAPL.",
+          "recommended_action": "Provide evidence-based sentiment summary with source attribution and key themes.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "SENT_CTX_2",
+          "customer_query_sample": "What is driving positive sentiment for $NVDA today?",
+          "extracted_intent": "ticker_sentiment_explanation",
+          "key_entities": ["NVDA", "NVIDIA", "AI chips", "positive sentiment"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "High",
+          "summary_for_agent": "User wants to understand why NVIDIA sentiment is bullish. AI chip demand and earnings beat are primary drivers.",
+          "sample_response": "Sentiment for $NVDA is currently +0.82 (Highly Positive) based on 61 news articles and 890 social media mentions in the past 6 hours. Key drivers: (1) Q3 earnings beat with $18.1B revenue vs $16.9B estimate, (2) CEO Jensen Huang's bullish commentary on Blackwell GPU demand, (3) 15 new AI partnership announcements. Based on 41 Reuters/Bloomberg headlines and 890 tweets tagged #NVDA and #AI.",
+          "recommended_action": "Deliver structured sentiment score with source attribution and top 3 drivers.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "SENT_CTX_3",
+          "customer_query_sample": "Is the energy sector sentiment shifting today?",
+          "extracted_intent": "sector_sentiment_explanation",
+          "key_entities": ["Energy", "XOM", "CVX", "oil prices"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "Medium",
+          "summary_for_agent": "User is asking about macro-level sector shift in Energy. Provide sector-level aggregate score and drivers.",
+          "sample_response": "Energy sector sentiment has shifted from Neutral (+0.05) to Negative (-0.28) over the past 3 hours. Based on 45 news sources, primary drivers are: (1) Crude oil inventories came in higher than expected (+2.3M barrels vs +0.8M estimate), (2) OPEC+ signaling potential production increase in Q1, (3) Weak demand data from China's NBS PMI report. Top movers: $XOM (-0.41), $CVX (-0.38), $OXY (-0.33).",
+          "recommended_action": "Provide sector-level summary with ticker-specific breakdowns.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        }
+      ]
+    },
+    {
+      "domain_name": "sector_trends_queries",
+      "description": "Queries about which sectors or stocks are trending positively or negatively on social media or news",
+      "scenarios": [
+        {
+          "scenario_id": "SECT_TREND_1",
+          "customer_query_sample": "Which tech stocks are seeing the most positive chatter on social media right now?",
+          "extracted_intent": "sector_social_sentiment_ranking",
+          "key_entities": ["Tech", "social media", "positive sentiment", "top movers"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "Medium",
+          "summary_for_agent": "User wants a ranked list of tech stocks by positive social media sentiment. Provide top 3-5 tickers with scores.",
+          "sample_response": "Top Tech stocks by positive social media sentiment (last 2 hours, based on 4,200+ posts): 1. $MSFT: +0.76 — driven by Azure AI revenue growth news (1,200 mentions). 2. $NVDA: +0.82 — AI chip demand chatter (2,100 mentions). 3. $META: +0.58 — strong ad revenue report (890 mentions). 4. $GOOGL: +0.44 — Gemini AI product launch coverage (670 mentions). Source: Twitter/X finance hashtags, Reddit r/wallstreetbets, StockTwits.",
+          "recommended_action": "Rank tickers by social sentiment score with mention volume.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "SECT_TREND_2",
+          "customer_query_sample": "What sectors are showing the strongest bullish momentum today?",
+          "extracted_intent": "sector_momentum_ranking",
+          "key_entities": ["sectors", "bullish", "momentum", "today"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "Medium",
+          "summary_for_agent": "User wants a macro view of which sectors are trending positively. Provide ranked sector summary.",
+          "sample_response": "Bullish sector ranking today (9 AM - 1 PM batch): 1. Technology: +0.71 (AI spending narrative). 2. Financials: +0.52 (Fed rate pause optimism). 3. Healthcare: +0.38 (Ozempic/GLP-1 drug pipeline news). 4. Consumer: +0.21 (Holiday sales beat). Bearish sectors: Energy: -0.28 (oversupply concerns), Crypto: -0.44 (regulatory FUD). Based on 3,400 news articles and 18,000 social posts.",
+          "recommended_action": "Present bullish/bearish sector leaderboard with confidence scores.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        }
+      ]
+    },
+    {
+      "domain_name": "comparison_queries",
+      "description": "Queries comparing one ticker or sector against another or against an average",
+      "scenarios": [
+        {
+          "scenario_id": "COMP_1",
+          "customer_query_sample": "How does the news sentiment for Tesla compare to its sector average?",
+          "extracted_intent": "ticker_vs_sector_comparison",
+          "key_entities": ["TSLA", "Tesla", "Consumer sector", "comparison"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "High",
+          "summary_for_agent": "User wants a relative comparison. Provide Tesla score vs Consumer sector average.",
+          "sample_response": "Tesla ($TSLA) vs Consumer Sector Comparison (last 24h): $TSLA sentiment: -0.31 (Negative). Consumer sector average: +0.21 (Positive). Divergence: -0.52 (Tesla is significantly underperforming its sector). Key reasons Tesla is lagging: (1) Q3 delivery miss of 435K vs 463K estimate (32 Reuters articles), (2) CEO Elon Musk distraction narrative on social media (1,800 negative tweets), (3) Competitive pressure from BYD in China market (18 Bloomberg reports). Confidence: 87% (based on 2,100 data points).",
+          "recommended_action": "Provide delta analysis between ticker and sector average.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "COMP_2",
+          "customer_query_sample": "Compare $JPM and $GS sentiment this week",
+          "extracted_intent": "ticker_vs_ticker_comparison",
+          "key_entities": ["JPM", "GS", "Financials", "banks"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "Medium",
+          "summary_for_agent": "User wants a head-to-head comparison of two financial sector tickers.",
+          "sample_response": "JPMorgan ($JPM) vs Goldman Sachs ($GS) — Weekly Sentiment Comparison: $JPM: +0.61 (Highly Positive) — driven by strong Q3 NII beat, $2.1B buyback announcement, positive CEO Jamie Dimon commentary. $GS: +0.23 (Positive) — M&A recovery narrative but offset by trading desk revenue miss. Winner this week: $JPM by +0.38 sentiment points. Based on 280 combined news articles and 3,400 social posts. Confidence: 91%.",
+          "recommended_action": "Present side-by-side sentiment card with key differentiators.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        }
+      ]
+    },
+    {
+      "domain_name": "event_impact_queries",
+      "description": "Queries about how specific news events are affecting market sentiment",
+      "scenarios": [
+        {
+          "scenario_id": "EVENT_1",
+          "customer_query_sample": "What is the general reaction to the latest Fed interest rate announcement?",
+          "extracted_intent": "macro_event_sentiment",
+          "key_entities": ["Fed", "interest rates", "FOMC", "macro sentiment"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "High",
+          "summary_for_agent": "User wants macro-level market sentiment following a Fed decision. This is a valid research query.",
+          "sample_response": "Fed Rate Decision Market Sentiment Summary: Overall market sentiment: +0.44 (Positive) — Fed held rates steady at 5.25-5.5% as expected. Sector breakdown: Financials: +0.68 (rate-sensitive stocks rally). Tech: +0.55 (growth stocks benefit from stable rates). Real Estate: +0.71 (REITs surge on rate pause). Energy: +0.12 (neutral, driven by oil dynamics). Key themes across 520 news articles: 'soft landing' (mentioned 340x), 'inflation cooling' (290x), 'rate cut 2024' (450x). Social sentiment: 78% positive across 12,400 finance-tagged posts.",
+          "recommended_action": "Provide macro event impact summary across sectors.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "EVENT_2",
+          "customer_query_sample": "How is the market reacting to Apple's earnings announcement?",
+          "extracted_intent": "earnings_event_sentiment",
+          "key_entities": ["AAPL", "earnings", "EPS", "revenue"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "High",
+          "summary_for_agent": "User wants post-earnings sentiment for Apple. Provide sentiment shift before vs after announcement.",
+          "sample_response": "Apple ($AAPL) Earnings Sentiment Analysis: Pre-announcement (24h prior): +0.18 (Neutral-positive). Post-announcement (last 2h): +0.67 (Highly Positive). Sentiment jump: +0.49. Key drivers: (1) EPS of $1.64 beat $1.58 estimate (mentioned in 89 articles), (2) Revenue of $94.9B beat $93.9B estimate, (3) Services segment record revenue of $22.3B. Social media: 4,200 positive tweets vs 890 negative. Top keywords: 'beat', 'services record', 'buyback $90B'. Confidence: 94%.",
+          "recommended_action": "Provide pre/post event sentiment delta analysis.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        }
+      ]
+    },
+    {
+      "domain_name": "divergence_alerts",
+      "description": "Queries about stocks where news and social media sentiment conflict",
+      "scenarios": [
+        {
+          "scenario_id": "DIV_1",
+          "customer_query_sample": "Are there any stocks where news is positive but social media sentiment is crashing?",
+          "extracted_intent": "sentiment_divergence_detection",
+          "key_entities": ["divergence", "news vs social", "contrarian alert"],
+          "tier": "Tier 1 — In-Scope",
+          "response_strategy": "Direct Answer + Citation",
+          "priority": "High",
+          "summary_for_agent": "User is looking for contrarian signals. This is a high-value research query for identifying potential bubbles or hidden risks.",
+          "sample_response": "Sentiment Divergence Alerts (Current): 1. $TSLA: News +0.42 vs Social -0.61 — DIVERGENCE: -1.03. News covers 'record production' but social media dominated by 'CEO controversy' and 'quality concerns'. RISK: Social sentiment may be leading indicator of price decline. 2. $COIN: News +0.28 vs Social -0.51 — Institutional reports bullish on crypto regulation, but retail FinTwit is panic-selling. 3. $INTC: News +0.15 vs Social -0.38 — Official PR positive on foundry progress, but tech community skeptical. Contrarian Alert: These divergences may indicate hidden downside risk. For informational purposes only.",
+          "recommended_action": "Flag divergence tickers with score differential and risk narrative.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        }
+      ]
+    },
+    {
+      "domain_name": "prohibited_queries",
+      "description": "Queries the agent must refuse — investment advice, price predictions, personal financial planning",
+      "scenarios": [
+        {
+          "scenario_id": "PROHIB_1",
+          "customer_query_sample": "Should I buy NVIDIA stock right now?",
+          "extracted_intent": "investment_advice_request",
+          "key_entities": ["NVDA", "buy recommendation", "investment advice"],
+          "tier": "Tier 3 — Prohibited",
+          "response_strategy": "Hard Guardrail + Pivot to Sentiment",
+          "priority": "N/A",
+          "summary_for_agent": "PROHIBITED: User is asking for a buy/sell recommendation. The agent must refuse and pivot to sentiment data.",
+          "sample_response": "I cannot provide financial advice or buy/sell recommendations. However, I can share that current sentiment for $NVDA is +0.82 (Highly Positive), driven by strong AI chip demand narrative across 890 social posts and 61 news articles. Would you like a detailed sentiment breakdown or a comparison with AMD's current sentiment? \n\n⚠️ Disclaimer: This summary is for informational purposes only and does not constitute financial advice. Please consult a certified financial advisor before making investment decisions.",
+          "recommended_action": "Refuse investment advice. Pivot to available sentiment data. Include disclaimer.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "PROHIB_2",
+          "customer_query_sample": "What will the price of Bitcoin be next Friday?",
+          "extracted_intent": "price_prediction_request",
+          "key_entities": ["BTC", "Bitcoin", "price prediction", "future"],
+          "tier": "Tier 3 — Prohibited",
+          "response_strategy": "Hard Guardrail + Pivot to Sentiment",
+          "priority": "N/A",
+          "summary_for_agent": "PROHIBITED: Price predictions are outside agent scope. Politely refuse and offer current sentiment instead.",
+          "sample_response": "I am unable to predict future prices — that falls outside my scope as a sentiment analysis assistant. What I can tell you is that current Bitcoin ($BTC) sentiment is -0.44 (Negative), driven by regulatory uncertainty news across 340 articles. Key themes: 'SEC enforcement' (mentioned 180x), 'crypto winter concerns' (120x). Would you like a full sentiment breakdown for BTC or the broader crypto sector? \n\n⚠️ Disclaimer: This is for informational purposes only. Not financial advice.",
+          "recommended_action": "Refuse prediction. Offer current/historical sentiment data instead. Include disclaimer.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "PROHIB_3",
+          "customer_query_sample": "I have $10,000 — how should I invest it for retirement?",
+          "extracted_intent": "personal_financial_planning",
+          "key_entities": ["personal investment", "retirement", "financial planning"],
+          "tier": "Tier 3 — Prohibited",
+          "response_strategy": "Hard Guardrail + Redirection",
+          "priority": "N/A",
+          "summary_for_agent": "PROHIBITED: Personal financial planning is strictly outside scope. Redirect to certified financial advisor.",
+          "sample_response": "I'm a market sentiment research assistant and cannot provide personal financial or retirement planning advice. For personalized investment guidance, please consult a SEBI-registered financial advisor or a certified financial planner (CFP). I can help you analyze the current market sentiment across different sectors to inform your research. For example, would you like to see today's sentiment scores for Tech, Financials, or Healthcare sectors? \n\n⚠️ Disclaimer: This is for informational purposes only. Not financial advice.",
+          "recommended_action": "Hard refusal. Redirect to certified advisor. Offer in-scope sentiment analysis.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "PROHIB_4",
+          "customer_query_sample": "Do you have any leaked info about Apple's upcoming product launch?",
+          "extracted_intent": "insider_information_request",
+          "key_entities": ["insider info", "leaked", "Apple", "non-public information"],
+          "tier": "Tier 3 — Prohibited",
+          "response_strategy": "Hard Guardrail",
+          "priority": "N/A",
+          "summary_for_agent": "PROHIBITED: Requests for insider or non-public information are strictly forbidden. Hard refusal required.",
+          "sample_response": "I cannot access, share, or speculate on non-public or insider information. Sharing or acting on material non-public information (MNPI) may violate securities law. I only analyze publicly available data: news feeds, public social media, and published reports. I can show you current public sentiment around $AAPL product rumors based on published news — would that be helpful? \n\n⚠️ Disclaimer: MarketPulse AI only processes publicly available information. Not financial advice.",
+          "recommended_action": "Hard refusal citing legal/compliance grounds. Never speculate on non-public info.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        }
+      ]
+    },
+    {
+      "domain_name": "out_of_scope_queries",
+      "description": "Non-financial queries the agent should politely redirect",
+      "scenarios": [
+        {
+          "scenario_id": "OOS_1",
+          "customer_query_sample": "What is the capital of France?",
+          "extracted_intent": "general_knowledge",
+          "key_entities": ["geography", "general knowledge"],
+          "tier": "Tier 2 — Out-of-Scope",
+          "response_strategy": "Polite Redirection",
+          "priority": "N/A",
+          "summary_for_agent": "This is a general knowledge question unrelated to financial markets or sentiment.",
+          "sample_response": "I'm MarketPulse AI — a financial market sentiment assistant. I'm not equipped to answer general knowledge questions. For that, I'd recommend a general search engine. However, if you're interested in French market sentiment ($CAC 40) or European financial sector trends, I'd be happy to help!",
+          "recommended_action": "Politely redirect to scope. Offer adjacent in-scope topics.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        },
+        {
+          "scenario_id": "OOS_2",
+          "customer_query_sample": "What is the weather like in Mumbai today?",
+          "extracted_intent": "weather_query",
+          "key_entities": ["weather", "Mumbai"],
+          "tier": "Tier 2 — Out-of-Scope",
+          "response_strategy": "Polite Redirection",
+          "priority": "N/A",
+          "summary_for_agent": "Weather query is out of scope for a financial sentiment agent.",
+          "sample_response": "I specialize in financial market sentiment analysis and can't help with weather queries. You can check a weather app for that. On the market side, I can tell you how climate-related news is affecting sentiment in the Energy or Agriculture sectors today — would that be useful?",
+          "recommended_action": "Politely redirect. Bridge to adjacent financial topic if possible.",
+          "resolution_sla": "Immediate",
+          "escalation_required": false
+        }
+      ]
+    }
+  ],
+
+  "faqs": [
+    {
+      "q": "What is MarketPulse AI?",
+      "a": "MarketPulse AI is a financial sentiment research assistant that analyzes publicly available news, social media, and financial reports to provide real-time sentiment scores for stocks and sectors. It helps traders and analysts quickly gauge market mood and identify trends."
+    },
+    {
+      "q": "What does a sentiment score mean?",
+      "a": "Sentiment scores range from -1.0 (Highly Negative) to +1.0 (Highly Positive). A score of +0.6 to +1.0 is Highly Positive; +0.2 to +0.59 is Positive; -0.19 to +0.19 is Neutral; -0.2 to -0.59 is Negative; -0.6 to -1.0 is Highly Negative."
+    },
+    {
+      "q": "What data sources does MarketPulse use?",
+      "a": "MarketPulse aggregates data from financial news feeds (Reuters, Bloomberg equivalent), social media (finance-tagged posts and stock ticker mentions), and SEC/regulatory filings. News sources are weighted at 70% and social media at 30% in the composite score."
+    },
+    {
+      "q": "How often is sentiment updated?",
+      "a": "Sentiment scores are updated in 5-minute batches. The dashboard refreshes continuously, and all data includes precise timestamps so you can track sentiment momentum throughout the trading day."
+    },
+    {
+      "q": "Can MarketPulse predict stock prices?",
+      "a": "No. MarketPulse AI is a sentiment analysis tool only. It does not predict prices, recommend trades, or provide financial advice. All outputs are for informational research purposes only."
+    },
+    {
+      "q": "What is a divergence alert?",
+      "a": "A divergence alert is triggered when news sentiment and social media sentiment move in opposite directions for the same ticker. For example, positive news but crashing social sentiment may indicate hidden downside risk not yet reflected in institutional coverage."
+    },
+    {
+      "q": "What is a confidence score?",
+      "a": "The confidence score (0-100%) reflects how reliable the sentiment reading is, based on data volume. A reading based on 2,000 data points has higher confidence than one based on 50. Low-confidence scores (below 60%) are flagged accordingly."
+    },
+    {
+      "q": "What sectors does MarketPulse cover?",
+      "a": "MarketPulse covers Technology, Energy, Financials, Healthcare, Consumer, and Crypto/Digital Assets sectors, with real-time sentiment for all major tickers within each sector."
+    },
+    {
+      "q": "How is social media sentiment different from news sentiment?",
+      "a": "News sentiment reflects institutional and journalistic coverage (Reuters, Bloomberg) — slower but more reliable. Social media sentiment (Twitter/X, Reddit) is faster but noisier and more volatile. Both are shown separately and combined into a composite score."
+    },
+    {
+      "q": "What does 'batch processing' mean in the dashboard?",
+      "a": "The system groups incoming data into 5-minute processing windows. At the end of each window, sentiment scores are recalculated across all tickers and sectors. This provides near-real-time updates while managing computational load."
+    }
+  ],
+
+  "example_queries_and_responses": [
+    {
+      "query": "Why is sentiment for $MSFT turning positive today?",
+      "response_type": "Tier 1",
+      "answer_template": "Sentiment for $MSFT is currently +{score} based on {news_count} news articles and {social_count} social posts in the past {hours} hours. Top drivers: (1) {driver_1}, (2) {driver_2}, (3) {driver_3}. Source: {sources}."
+    },
+    {
+      "query": "Show me the most negative sectors right now",
+      "response_type": "Tier 1",
+      "answer_template": "Most negative sectors right now: 1. {sector_1}: {score_1}. 2. {sector_2}: {score_2}. 3. {sector_3}: {score_3}. Key macro drivers: {macro_theme}. Data from {total_sources} sources as of {timestamp}."
+    },
+    {
+      "query": "Are there any bullish surprises in the Energy sector today?",
+      "response_type": "Tier 1",
+      "answer_template": "Bullish outliers in Energy: {ticker_1} at +{score_1} (vs sector avg of {sector_avg}) — driven by {driver}. Confidence: {confidence}% based on {data_count} data points."
+    }
+  ]
+}
